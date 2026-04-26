@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prayer Arc · Icons Merged with Line</title>
+<title>Prayer Arc · Multi-Language</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
@@ -32,7 +32,6 @@
         transition: background 1s ease;
     }
 
-    /* Dynamic Gradients */
     .bg-fajr { background: linear-gradient(180deg, #141e30 0%, #243b55 100%); }
     .bg-sunrise { background: linear-gradient(180deg, #3a7bd5 0%, #00d2ff 100%); }
     .bg-dhuhr { background: linear-gradient(180deg, #4A90E2 0%, #3478c9 100%); }
@@ -40,7 +39,6 @@
     .bg-maghrib { background: linear-gradient(180deg, #e65245 0%, #b33939 100%); }
     .bg-isha { background: linear-gradient(180deg, #0f0c29 0%, #302b63 100%); }
 
-    /* SVG */
     .arc-svg {
         position: absolute;
         width: 100%;
@@ -64,7 +62,6 @@
         transition: stroke-dashoffset 0.5s ease;
     }
 
-    /* Center Info */
     .center-info {
         position: absolute;
         top: 55%;
@@ -79,7 +76,6 @@
     .prayer-time { font-size: 1.8rem; font-weight: bold; line-height: 1.1; }
     .city-name { font-size: 0.8rem; opacity: 0.8; margin-top: 5px; }
 
-    /* Icons - all now have white background (like Isha) */
     .prayer-icon {
         position: absolute;
         width: 38px;
@@ -97,10 +93,7 @@
         border: 1px solid rgba(255,255,255,0.5);
     }
 
-    .prayer-icon img {
-        width: 22px;
-        filter: none;
-    }
+    .prayer-icon img { width: 22px; filter: none; }
 
     .prayer-icon.current {
         background: gold;
@@ -111,7 +104,6 @@
     }
     .prayer-icon.current img { width: 26px; filter: none; }
 
-    /* Top buttons */
     .top-left, .top-right {
         position: absolute;
         z-index: 20;
@@ -128,12 +120,16 @@
         color: white;
         cursor: pointer;
         transition: 0.2s;
-        font-size: 20px;
-        font-weight: bold;
     }
     .top-left { left: 12px; }
     .top-right { right: 12px; }
-    .top-left:hover, .top-right:hover { background: rgba(0,0,0,0.7); transform: scale(1.02); }
+    .top-left:hover, .top-right:hover { background: rgba(0,0,0,0.7); transform: scale(1.05); }
+
+    .top-left img, .top-right img {
+        width: 22px;
+        height: 22px;
+        filter: invert(1);
+    }
 </style>
 </head>
 
@@ -141,15 +137,18 @@
 
 <div class="arc-widget" id="widget">
 
-    <div class="top-left" onclick="toggleLang()" id="langBtn">文</div>
-    <div class="top-right" onclick="fetchData()">↻</div>
+    <div class="top-left" onclick="toggleLang()" id="langBtn">
+        <img src="https://cdn-icons-png.flaticon.com/128/18882/18882472.png">
+    </div>
+    <div class="top-right" onclick="fetchData()">
+        <img src="https://cdn-icons-png.flaticon.com/128/9311/9311549.png">
+    </div>
 
     <svg class="arc-svg" viewBox="0 0 380 240">
         <path id="arcTrack" class="track" d="M 30 170 L 90 170 A 100 100 0 0 1 290 170 L 350 170"/>
         <path id="arcProgress" class="progress" d="M 30 170 L 90 170 A 100 100 0 0 1 290 170 L 350 170"/>
     </svg>
 
-    <!-- Icons (all white background, clearly visible) -->
     <div class="prayer-icon" id="icon-fajr"><img src="https://cdn-icons-png.flaticon.com/128/4067/4067304.png"></div>
     <div class="prayer-icon" id="icon-sunrise"><img src="https://cdn-icons-png.flaticon.com/128/11546/11546454.png"></div>
     <div class="prayer-icon" id="icon-dhuhr"><img src="https://cdn-icons-png.flaticon.com/128/1004/1004519.png"></div>
@@ -158,7 +157,7 @@
     <div class="prayer-icon" id="icon-isha"><img src="https://cdn-icons-png.flaticon.com/128/2116/2116201.png"></div>
 
     <div class="center-info">
-        <div class="prayer-name" id="prayer-name">Next Prayer</div>
+        <div class="prayer-name" id="prayer-name">--</div>
         <div class="prayer-time" id="prayer-time">--:--</div>
         <div class="city-name" id="city-display">Ain Oussera</div>
     </div>
@@ -168,6 +167,10 @@
 <script>
 const PRAYERS = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
 const NODES = { "Fajr": 0, "Sunrise": 0.15, "Dhuhr": 0.50, "Asr": 0.72, "Maghrib": 0.85, "Isha": 1 };
+const TRANSLATIONS = {
+    en: { Fajr: "Fajr", Sunrise: "Sunrise", Dhuhr: "Dhuhr", Asr: "Asr", Maghrib: "Maghrib", Isha: "Isha", city: "Ain Oussera" },
+    ar: { Fajr: "الفجر", Sunrise: "الشروق", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء", city: "عين وسارة" }
+};
 
 const PATH = document.getElementById("arcProgress");
 const PATH_LEN = PATH.getTotalLength();
@@ -208,7 +211,8 @@ function updateWidget() {
     }
 
     document.getElementById("prayer-time").innerText = state.timings[next];
-    document.getElementById("prayer-name").innerText = next;
+    // TRANSLATE PRAYER NAME
+    document.getElementById("prayer-name").innerText = TRANSLATIONS[state.lang][next];
     document.getElementById("widget").className = `arc-widget bg-${next.toLowerCase()}`;
     
     document.querySelectorAll('.prayer-icon').forEach(el => el.classList.remove('current'));
@@ -234,8 +238,9 @@ function toMin(t) {
 
 function toggleLang() {
     state.lang = state.lang === 'en' ? 'ar' : 'en';
-    document.getElementById("city-display").innerText = state.lang === 'ar' ? "عين وسارة" : "Ain Oussera";
-    document.getElementById("langBtn").innerText = state.lang === 'en' ? '文' : 'EN';
+    document.documentElement.lang = state.lang;
+    document.getElementById("city-display").innerText = TRANSLATIONS[state.lang].city;
+    updateWidget(); // Trigger translation update
 }
 
 snapIconsToPath();
