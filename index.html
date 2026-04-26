@@ -3,32 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prayer Arc · Notion Ready</title>
+<title>Proportioned Prayer Arc</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
         background: transparent;
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: auto;
+        min-height: 100vh;
         font-family: 'Roboto', sans-serif;
-        padding: 8px;
+        overflow: hidden;
     }
+
     [lang="ar"] { font-family: 'Cairo', sans-serif; }
 
-    /* Widget container: flexible width, max width for Notion embed */
+    /* ADJUSTED SIZE: Added more height (280) relative to width */
     .arc-widget {
-        width: 100%;
-        max-width: 540px;        /* comfortable size for Notion */
-        margin: 0 auto;
-        aspect-ratio: 380 / 240;  /* keeps shape */
+        width: 98%;
+        max-width: 650px; 
+        aspect-ratio: 380 / 280; /* Taller length as requested */
         border-radius: 26px;
         overflow: hidden;
         position: relative;
-        background: linear-gradient(180deg, #6f8cff, #3f4edb);
-        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        background: linear-gradient(180deg, #1e293b, #0f172a);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         transition: background 1s ease;
     }
 
@@ -45,32 +48,26 @@
         height: 100%;
         z-index: 1;
     }
-    .track { stroke: rgba(255,255,255,0.2); stroke-width: 10; fill: none; stroke-linecap: round; }
-    .progress { stroke: white; stroke-width: 10; fill: none; stroke-linecap: round; filter: drop-shadow(0 0 6px rgba(255,255,255,0.8)); transition: stroke-dashoffset 0.5s ease; }
+
+    .track { stroke: rgba(255, 255, 255, 0.2); stroke-width: 10; fill: none; stroke-linecap: round; }
+    .progress { stroke: white; stroke-width: 10; fill: none; stroke-linecap: round; filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8)); transition: stroke-dashoffset 0.5s ease; }
 
     .center-info {
         position: absolute;
-        top: 55%;
+        top: 58%; /* Slightly adjusted for taller height */
         left: 50%;
         transform: translate(-50%, -50%);
         text-align: center;
         color: white;
         z-index: 2;
-        width: 90%;
-        pointer-events: none;
-    }
-    .prayer-name { font-size: clamp(1rem, 4vw, 1.3rem); font-weight: 500; }
-    .prayer-time { font-size: clamp(1.6rem, 6vw, 2.2rem); font-weight: bold; line-height: 1.1; }
-    .city-name {
-        font-size: clamp(0.7rem, 2.5vw, 0.9rem);
-        opacity: 0.8;
-        margin-top: 4px;
-        pointer-events: auto;
-        cursor: pointer;
-        text-decoration: underline;
-        display: inline-block;
+        width: 100%;
     }
 
+    .prayer-name { font-size: 1.2rem; font-weight: 500; }
+    .prayer-time { font-size: 2.5rem; font-weight: bold; line-height: 1.1; }
+    .city-name { font-size: 1rem; opacity: 0.8; margin-top: 5px; }
+
+    /* Scaling Icons */
     .prayer-icon {
         position: absolute;
         width: 11%;
@@ -82,40 +79,39 @@
         justify-content: center;
         transform: translate(-50%, -50%);
         z-index: 15;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         border: 1px solid rgba(255,255,255,0.5);
     }
-    .prayer-icon img { width: 60%; object-fit: contain; }
+    .prayer-icon img { width: 60%; }
+
     .prayer-icon.current {
         background: gold;
-        width: 13%;
-        box-shadow: 0 0 15px gold;
-        border: 2px solid white;
+        width: 13.5%;
+        box-shadow: 0 0 20px gold;
+        border: 3px solid white;
     }
 
     .top-left, .top-right {
         position: absolute;
         z-index: 20;
-        top: 5%;
+        top: 6%;
         width: 11%;
         aspect-ratio: 1/1;
         border-radius: 50%;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0,0,0,0.4);
         backdrop-filter: blur(8px);
-        border: 1px solid rgba(255,255,255,0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        border: 1px solid rgba(255,255,255,0.2);
+        display: flex; align-items: center; justify-content: center;
         cursor: pointer;
-        transition: 0.2s;
     }
-    .top-left { left: 4%; }
-    .top-right { right: 4%; }
-    .top-left img, .top-right img { width: 50%; filter: invert(1); }
-    .top-left:hover, .top-right:hover { background: rgba(0,0,0,0.7); transform: scale(1.02); }
+    .top-left { left: 5%; }
+    .top-right { right: 5%; }
+    .top-left img, .top-right img { width: 55%; filter: invert(1); }
 </style>
 </head>
+
 <body>
+
 <div class="arc-widget" id="widget">
 
     <div class="top-left" onclick="toggleLang()" id="langBtn">
@@ -142,6 +138,7 @@
         <div class="prayer-time" id="prayer-time">--:--</div>
         <div class="city-name" id="city-display">Ain Oussera</div>
     </div>
+
 </div>
 
 <script>
@@ -155,10 +152,10 @@ const TRANSLATIONS = {
 const PATH = document.getElementById("arcProgress");
 let state = { timings: null, lang: 'en' };
 
-// Position icons exactly on the arc (scaled with container)
 function snapIconsToPath() {
     const pathLen = PATH.getTotalLength();
     const svgRect = document.getElementById('svgBox').getBoundingClientRect();
+    
     const scaleX = svgRect.width / 380;
     const scaleY = svgRect.height / 240;
 
@@ -166,10 +163,8 @@ function snapIconsToPath() {
         const perc = NODES[p];
         const pt = PATH.getPointAtLength(perc * pathLen);
         const el = document.getElementById("icon-" + p.toLowerCase());
-        if (el) {
-            el.style.left = (pt.x * scaleX) + "px";
-            el.style.top = (pt.y * scaleY) + "px";
-        }
+        el.style.left = (pt.x * scaleX) + "px";
+        el.style.top = (pt.y * scaleY) + "px";
     });
 }
 
@@ -177,13 +172,9 @@ async function fetchData() {
     try {
         const res = await fetch("https://api.aladhan.com/v1/timingsByCity?city=Ain%20Oussera&country=Algeria&method=19");
         const data = await res.json();
-        if (data.code === 200) {
-            state.timings = data.data.timings;
-            updateWidget();
-        } else {
-            console.warn("API error");
-        }
-    } catch (e) { console.error("Fetch failed", e); }
+        state.timings = data.data.timings;
+        updateWidget();
+    } catch (e) { console.error(e); }
 }
 
 function updateWidget() {
@@ -193,6 +184,7 @@ function updateWidget() {
 
     let next = "Fajr", prev = "Isha";
     let isPastIsha = true;
+
     for(let i=0; i<PRAYERS.length; i++) {
         const pm = toMin(state.timings[PRAYERS[i]]);
         if (pm > minsNow) {
@@ -208,16 +200,13 @@ function updateWidget() {
     document.getElementById("widget").className = `arc-widget bg-${next.toLowerCase()}`;
     
     document.querySelectorAll('.prayer-icon').forEach(el => el.classList.remove('current'));
-    const activeIcon = document.getElementById("icon-" + next.toLowerCase());
-    if (activeIcon) activeIcon.classList.add('current');
+    document.getElementById("icon-" + next.toLowerCase()).classList.add('current');
 
     let totalPerc;
-    if (isPastIsha) totalPerc = 1;
+    if (isPastIsha) totalPerc = 1; 
     else if (minsNow < toMin(state.timings["Fajr"])) totalPerc = 0;
     else {
-        const tStart = toMin(state.timings[prev]);
-        const tEnd = toMin(state.timings[next]);
-        const progress = Math.max(0, Math.min(1, (minsNow - tStart) / (tEnd - tStart)));
+        const progress = Math.max(0, Math.min(1, (minsNow - toMin(state.timings[prev])) / (toMin(state.timings[next]) - toMin(state.timings[prev]))));
         totalPerc = NODES[prev] + (progress * (NODES[next] - NODES[prev]));
     }
 
@@ -226,7 +215,7 @@ function updateWidget() {
     PATH.style.strokeDashoffset = pathLen * (1 - totalPerc);
 }
 
-function toMin(t) { const [h, m] = t.split(":").map(Number); return h*60 + m; }
+function toMin(t) { const [h, m] = t.split(":").map(Number); return h * 60 + m; }
 
 function toggleLang() {
     state.lang = state.lang === 'en' ? 'ar' : 'en';
@@ -234,13 +223,12 @@ function toggleLang() {
     updateWidget();
 }
 
-// Initial run
 fetchData();
 setInterval(updateWidget, 1000);
 
-// Re‑snap icons when widget resizes (critical for Notion embed)
-const resizeObserver = new ResizeObserver(() => { snapIconsToPath(); });
+const resizeObserver = new ResizeObserver(() => snapIconsToPath());
 resizeObserver.observe(document.getElementById('widget'));
 </script>
+
 </body>
 </html>
