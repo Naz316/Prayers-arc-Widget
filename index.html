@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Notion Scaling Prayer Arc</title>
+<title>Proportional Prayer Arc</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
@@ -12,35 +12,34 @@
 
     body, html {
         width: 100%; height: 100%;
-        overflow: hidden; background: #0f172a;
+        overflow: hidden; background: transparent;
     }
 
-    /* Container fills 100% of Notion block */
     .arc-widget {
         width: 100%; height: 100%;
         position: relative;
         display: flex; justify-content: center; align-items: center;
         background: linear-gradient(180deg, #1e293b, #0f172a);
         transition: background 1s ease;
+        border-radius: 20px;
     }
 
     /* Gradients */
-    .bg-fajr { background: linear-gradient(180deg, #0f172a, #1e293b); }
-    .bg-sunrise { background: linear-gradient(180deg, #0369a1, #0ea5e9); }
-    .bg-dhuhr { background: linear-gradient(180deg, #38bdf8, #0284c7); }
-    .bg-asr { background: linear-gradient(180deg, #6366f1, #4338ca); }
-    .bg-maghrib { background: linear-gradient(180deg, #f43f5e, #9f1239); }
-    .bg-isha { background: linear-gradient(180deg, #1e1b4b, #0f172a); }
+    .bg-fajr { background: linear-gradient(180deg, #141e30, #243b55); }
+    .bg-sunrise { background: linear-gradient(180deg, #3a7bd5, #00d2ff); }
+    .bg-dhuhr { background: linear-gradient(180deg, #4A90E2, #3478c9); }
+    .bg-asr { background: linear-gradient(180deg, #517fa4, #243949); }
+    .bg-maghrib { background: linear-gradient(180deg, #e65245, #b33939); }
+    .bg-isha { background: linear-gradient(180deg, #0f0c29, #302b63); }
 
-    /* SVG line */
     .arc-svg {
         position: absolute;
-        width: 88%; height: 88%;
+        width: 90%; height: 90%;
         z-index: 1; overflow: visible;
     }
 
-    .track { stroke: rgba(255, 255, 255, 0.15); fill: none; stroke-linecap: round; }
-    .progress { stroke: white; fill: none; stroke-linecap: round; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
+    .track { stroke: rgba(255, 255, 255, 0.2); fill: none; stroke-linecap: round; }
+    .progress { stroke: white; fill: none; stroke-linecap: round; filter: drop-shadow(0 0 10px rgba(255,255,255,0.6)); }
 
     .center-info {
         position: absolute; text-align: center; color: white; z-index: 2;
@@ -52,13 +51,13 @@
     
     .prayer-icon { 
         border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; 
-        box-shadow: 0 6px 20px rgba(0,0,0,0.4); transition: all 0.3s ease; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: all 0.3s ease; 
     }
     .prayer-icon img { width: 62%; height: 62%; }
-    .prayer-icon.current { background: #fbbf24; border: 3px solid white; box-shadow: 0 0 35px #fbbf24; }
+    .prayer-icon.current { background: #fbbf24; border: 2.5px solid white; box-shadow: 0 0 25px #fbbf24; }
 
     .top-left, .top-right { 
-        background: rgba(255,255,255,0.1); border-radius: 50%; border: 1px solid rgba(255,255,255,0.2);
+        background: rgba(255,255,255,0.12); border-radius: 50%; border: 1px solid rgba(255,255,255,0.2);
         display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(5px);
     }
     .top-left img, .top-right img { width: 55%; filter: invert(1); }
@@ -74,8 +73,8 @@
     <div id="bead"></div>
 
     <svg class="arc-svg" viewBox="0 0 380 240" id="svgElement">
-        <path id="masterPath" class="track" d="M 30 170 L 90 170 A 100 100 0 0 1 290 170 L 350 170"/>
-        <path id="fillPath" class="progress" d="M 30 170 L 90 170 A 100 100 0 0 1 290 170 L 350 170"/>
+        <path id="masterPath" class="track" d="M 35 170 L 95 170 A 100 100 0 0 1 285 170 L 345 170"/>
+        <path id="fillPath" class="progress" d="M 35 170 L 95 170 A 100 100 0 0 1 285 170 L 345 170"/>
     </svg>
 
     <!-- Icons -->
@@ -95,7 +94,7 @@
 
 <script>
 const PRAYERS = ["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"];
-const NODES = { "fajr": 0, "sunrise": 0.15, "dhuhr": 0.50, "asr": 0.72, "maghrib": 0.85, "isha": 1 };
+const NODES = { "fajr": 0, "sunrise": 0.16, "dhuhr": 0.50, "asr": 0.70, "maghrib": 0.84, "isha": 1 };
 const TRANSLATIONS = {
     en: { fajr: "Fajr", sunrise: "Sunrise", dhuhr: "Dhuhr", asr: "Asr", maghrib: "Maghrib", isha: "Isha", city: "Ain Oussera" },
     ar: { fajr: "الفجر", sunrise: "الشروق", dhuhr: "الظهر", asr: "العصر", maghrib: "المغرب", isha: "العشاء", city: "عين وسارة" }
@@ -111,13 +110,12 @@ function updateLayout() {
     const scale = rect.width / 380; 
     const pathLen = MASTER_PATH.getTotalLength();
     
-    // Thicker line for better visibility
-    MASTER_PATH.style.strokeWidth = (14 * scale) + "px";
-    FILL_PATH.style.strokeWidth = (14 * scale) + "px";
+    MASTER_PATH.style.strokeWidth = (12 * scale) + "px";
+    FILL_PATH.style.strokeWidth = (12 * scale) + "px";
 
-    // INCREASED BASE SIZES FOR BETTER FIT
-    const iconSize = 52 * scale; 
-    const btnSize = 48 * scale;
+    // BALANCED SCALING
+    const iconSize = 44 * scale; 
+    const btnSize = 38 * scale;
     
     PRAYERS.forEach(p => {
         const el = document.getElementById("icon-" + p);
@@ -129,15 +127,17 @@ function updateLayout() {
     });
 
     const btns = [document.getElementById('langBtn'), document.getElementById('refreshBtn')];
-    btns.forEach(b => { b.style.width = btnSize + "px"; b.style.height = btnSize + "px"; b.style.top = (btnSize * 0.7) + "px"; });
-    btns[0].style.left = (btnSize * 0.7) + "px";
-    btns[1].style.right = (btnSize * -0.3) + "px";
+    btns[0].style.width = btnSize + "px"; btns[0].style.height = btnSize + "px";
+    btns[0].style.left = (btnSize * 0.9) + "px"; btns[0].style.top = (btnSize * 0.9) + "px";
+    
+    btns[1].style.width = btnSize + "px"; btns[1].style.height = btnSize + "px";
+    btns[1].style.right = (btnSize * -0.1) + "px"; btns[1].style.top = (btnSize * 0.9) + "px";
 
-    // ENLARGED TEXT SIZES
-    document.getElementById("p-name").style.fontSize = (1.8 * scale) + "rem";
-    document.getElementById("p-time").style.fontSize = (4.8 * scale) + "rem";
-    document.getElementById("p-city").style.fontSize = (1.2 * scale) + "rem";
-    document.getElementById("info").style.top = (rect.top + rect.height * 0.58) + "px";
+    // BALANCED TEXT SIZES
+    document.getElementById("p-name").style.fontSize = (1.4 * scale) + "rem";
+    document.getElementById("p-time").style.fontSize = (3.4 * scale) + "rem";
+    document.getElementById("p-city").style.fontSize = (0.95 * scale) + "rem";
+    document.getElementById("info").style.top = (rect.top + rect.height * 0.6) + "px";
 
     updateLiveProgress(pathLen, scale, rect);
 }
@@ -146,8 +146,8 @@ function updateLiveProgress(pathLen, scale, rect) {
     if (!state.timings) return;
     const now = new Date();
     const minsNow = now.getHours() * 60 + now.getMinutes();
-    let next = "fajr", prev = "isha";
 
+    let next = "fajr", prev = "isha";
     for(let i=0; i<PRAYERS.length; i++) {
         const pm = toMin(state.timings[PRAYERS[i].charAt(0).toUpperCase() + PRAYERS[i].slice(1)]);
         if (pm > minsNow) {
@@ -166,8 +166,8 @@ function updateLiveProgress(pathLen, scale, rect) {
 
     const bead = document.getElementById("bead");
     const pt = MASTER_PATH.getPointAtLength(totalPerc * pathLen);
-    bead.style.width = (18 * scale) + "px";
-    bead.style.height = (18 * scale) + "px";
+    bead.style.width = (14 * scale) + "px";
+    bead.style.height = (14 * scale) + "px";
     bead.style.left = (pt.x * scale + rect.left) + "px";
     bead.style.top = (pt.y * scale + rect.top) + "px";
 
@@ -181,8 +181,6 @@ function updateLiveProgress(pathLen, scale, rect) {
     document.querySelectorAll('.prayer-icon').forEach(el => el.classList.remove('current'));
     const currentIcon = document.getElementById("icon-" + next);
     currentIcon.classList.add('current');
-    currentIcon.style.width = (64 * scale) + "px";
-    currentIcon.style.height = (64 * scale) + "px";
 }
 
 function toMin(t) { const [h, m] = t.split(":").map(Number); return h * 60 + m; }
