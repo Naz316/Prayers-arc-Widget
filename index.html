@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prayer Arc · Multi-Language</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Prayer Arc · Multi-Language · Larger</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
@@ -11,27 +11,29 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-        background: #c0c0c0;
+        background: transparent;  /* removed grey background */
         display: flex;
         justify-content: center;
         align-items: center;
         min-height: 100vh;
         font-family: 'Roboto', sans-serif;
+        padding: 16px;
     }
 
     [lang="ar"] { font-family: 'Cairo', sans-serif; }
 
     .arc-widget {
-        width: 380px;
-        height: 240px;
-        border-radius: 26px;
+        width: 480px;           /* bigger widget */
+        height: 300px;          /* bigger widget */
+        border-radius: 32px;
         overflow: hidden;
         position: relative;
         background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
-        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         transition: background 1s ease;
     }
 
+    /* Dynamic Gradients */
     .bg-fajr { background: linear-gradient(180deg, #141e30 0%, #243b55 100%); }
     .bg-sunrise { background: linear-gradient(180deg, #3a7bd5 0%, #00d2ff 100%); }
     .bg-dhuhr { background: linear-gradient(180deg, #4A90E2 0%, #3478c9 100%); }
@@ -48,14 +50,14 @@
 
     .track {
         stroke: rgba(255, 255, 255, 0.2);
-        stroke-width: 10;
+        stroke-width: 12;
         fill: none;
         stroke-linecap: round;
     }
 
     .progress {
         stroke: white;
-        stroke-width: 10;
+        stroke-width: 12;
         fill: none;
         stroke-linecap: round;
         filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
@@ -70,16 +72,18 @@
         text-align: center;
         color: white;
         z-index: 2;
+        width: 90%;
+        white-space: nowrap;
     }
 
-    .prayer-name { font-size: 1.1rem; font-weight: 500; }
-    .prayer-time { font-size: 1.8rem; font-weight: bold; line-height: 1.1; }
-    .city-name { font-size: 0.8rem; opacity: 0.8; margin-top: 5px; }
+    .prayer-name { font-size: 1.3rem; font-weight: 500; }
+    .prayer-time { font-size: 2.2rem; font-weight: bold; line-height: 1.1; }
+    .city-name { font-size: 0.85rem; opacity: 0.8; margin-top: 5px; cursor: pointer; display: inline-block; }
 
     .prayer-icon {
         position: absolute;
-        width: 38px;
-        height: 38px;
+        width: 42px;
+        height: 42px;
         border-radius: 50%;
         background: white;
         display: flex;
@@ -93,23 +97,27 @@
         border: 1px solid rgba(255,255,255,0.5);
     }
 
-    .prayer-icon img { width: 22px; filter: none; }
+    .prayer-icon img {
+        width: 24px;
+        filter: none;
+    }
 
     .prayer-icon.current {
         background: gold;
-        width: 44px;
-        height: 44px;
+        width: 50px;
+        height: 50px;
         box-shadow: 0 0 15px gold;
         border: 2px solid white;
     }
-    .prayer-icon.current img { width: 26px; filter: none; }
+    .prayer-icon.current img { width: 28px; filter: none; }
 
+    /* Top buttons */
     .top-left, .top-right {
         position: absolute;
         z-index: 20;
-        top: 12px;
-        width: 44px;
-        height: 44px;
+        top: 16px;
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
         background: rgba(0,0,0,0.5);
         backdrop-filter: blur(8px);
@@ -117,18 +125,39 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
         cursor: pointer;
         transition: 0.2s;
     }
-    .top-left { left: 12px; }
-    .top-right { right: 12px; }
+    .top-left { left: 16px; }
+    .top-right { right: 16px; }
     .top-left:hover, .top-right:hover { background: rgba(0,0,0,0.7); transform: scale(1.05); }
 
     .top-left img, .top-right img {
-        width: 22px;
-        height: 22px;
+        width: 24px;
+        height: 24px;
         filter: invert(1);
+    }
+
+    /* Rotation animation for refresh */
+    .rotate {
+        animation: spin 0.6s ease-in-out;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 540px) {
+        .arc-widget {
+            width: 400px;
+            height: 260px;
+        }
+        .prayer-name { font-size: 1rem; }
+        .prayer-time { font-size: 1.8rem; }
+        .prayer-icon { width: 36px; height: 36px; }
+        .prayer-icon img { width: 20px; }
+        .prayer-icon.current { width: 44px; height: 44px; }
+        .prayer-icon.current img { width: 24px; }
     }
 </style>
 </head>
@@ -140,13 +169,14 @@
     <div class="top-left" onclick="toggleLang()" id="langBtn">
         <img src="https://cdn-icons-png.flaticon.com/128/18882/18882472.png">
     </div>
-    <div class="top-right" onclick="fetchData()">
+    <div class="top-right" id="refreshBtn" onclick="handleRefresh()">
         <img src="https://cdn-icons-png.flaticon.com/128/9311/9311549.png">
     </div>
 
-    <svg class="arc-svg" viewBox="0 0 380 240">
-        <path id="arcTrack" class="track" d="M 30 170 L 90 170 A 100 100 0 0 1 290 170 L 350 170"/>
-        <path id="arcProgress" class="progress" d="M 30 170 L 90 170 A 100 100 0 0 1 290 170 L 350 170"/>
+    <svg class="arc-svg" viewBox="0 0 480 300">
+        <!-- recalculated path for larger canvas: left line, arc, right line -->
+        <path id="arcTrack" class="track" d="M 40 210 L 100 210 A 140 140 0 0 1 380 210 L 440 210"/>
+        <path id="arcProgress" class="progress" d="M 40 210 L 100 210 A 140 140 0 0 1 380 210 L 440 210"/>
     </svg>
 
     <div class="prayer-icon" id="icon-fajr"><img src="https://cdn-icons-png.flaticon.com/128/4067/4067304.png"></div>
@@ -159,30 +189,42 @@
     <div class="center-info">
         <div class="prayer-name" id="prayer-name">--</div>
         <div class="prayer-time" id="prayer-time">--:--</div>
-        <div class="city-name" id="city-display">Ain Oussera</div>
+        <div class="city-name" id="city-display" onclick="toggleControls()">Ain Oussera</div>
     </div>
 
 </div>
 
 <script>
 const PRAYERS = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
-const NODES = { "Fajr": 0, "Sunrise": 0.15, "Dhuhr": 0.50, "Asr": 0.72, "Maghrib": 0.85, "Isha": 1 };
+// Updated NODES for new path (from 0 to 1)
+// Path: left vertical (40->100) length 60, arc (r=140) length ~440, right vertical (380->440) length 60. Total ~560.
+// We can still use fractions based on visual positions.
+const NODES = { "Fajr": 0, "Sunrise": 0.15, "Dhuhr": 0.50, "Asr": 0.70, "Maghrib": 0.85, "Isha": 1 };
 const TRANSLATIONS = {
     en: { Fajr: "Fajr", Sunrise: "Sunrise", Dhuhr: "Dhuhr", Asr: "Asr", Maghrib: "Maghrib", Isha: "Isha", city: "Ain Oussera" },
     ar: { Fajr: "الفجر", Sunrise: "الشروق", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء", city: "عين وسارة" }
 };
 
 const PATH = document.getElementById("arcProgress");
-const PATH_LEN = PATH.getTotalLength();
+let PATH_LEN = null;
 let state = { timings: null, lang: 'en' };
 
+// Function to update path length after resize or init
+function updatePathLength() {
+    PATH_LEN = PATH.getTotalLength();
+    return PATH_LEN;
+}
+
 function snapIconsToPath() {
+    if (!PATH_LEN) updatePathLength();
     PRAYERS.forEach(p => {
         const perc = NODES[p];
         const pt = PATH.getPointAtLength(perc * PATH_LEN);
         const el = document.getElementById("icon-" + p.toLowerCase());
-        el.style.left = pt.x + "px";
-        el.style.top = pt.y + "px";
+        if (el) {
+            el.style.left = pt.x + "px";
+            el.style.top = pt.y + "px";
+        }
     });
 }
 
@@ -190,8 +232,12 @@ async function fetchData() {
     try {
         const res = await fetch("https://api.aladhan.com/v1/timingsByCity?city=Ain%20Oussera&country=Algeria&method=19");
         const data = await res.json();
-        state.timings = data.data.timings;
-        updateWidget();
+        if (data.code === 200) {
+            state.timings = data.data.timings;
+            updateWidget();
+        } else {
+            console.warn("API error");
+        }
     } catch (e) { console.error("Fetch failed", e); }
 }
 
@@ -211,12 +257,12 @@ function updateWidget() {
     }
 
     document.getElementById("prayer-time").innerText = state.timings[next];
-    // TRANSLATE PRAYER NAME
     document.getElementById("prayer-name").innerText = TRANSLATIONS[state.lang][next];
     document.getElementById("widget").className = `arc-widget bg-${next.toLowerCase()}`;
     
     document.querySelectorAll('.prayer-icon').forEach(el => el.classList.remove('current'));
-    document.getElementById("icon-" + next.toLowerCase()).classList.add('current');
+    const currentIcon = document.getElementById("icon-" + next.toLowerCase());
+    if (currentIcon) currentIcon.classList.add('current');
 
     const startPerc = NODES[prev];
     const endPerc = NODES[next];
@@ -227,8 +273,10 @@ function updateWidget() {
     const progress = Math.max(0, Math.min(1, (minsNow - tStart) / (tEnd - tStart)));
     const totalPerc = startPerc + (progress * (endPerc - startPerc));
 
-    PATH.style.strokeDasharray = PATH_LEN;
-    PATH.style.strokeDashoffset = PATH_LEN * (1 - totalPerc);
+    if (PATH_LEN) {
+        PATH.style.strokeDasharray = PATH_LEN;
+        PATH.style.strokeDashoffset = PATH_LEN * (1 - totalPerc);
+    }
 }
 
 function toMin(t) {
@@ -240,14 +288,41 @@ function toggleLang() {
     state.lang = state.lang === 'en' ? 'ar' : 'en';
     document.documentElement.lang = state.lang;
     document.getElementById("city-display").innerText = TRANSLATIONS[state.lang].city;
-    updateWidget(); // Trigger translation update
+    updateWidget(); // Refresh displayed prayer names
 }
 
-snapIconsToPath();
-fetchData();
-setInterval(updateWidget, 1000);
-window.addEventListener('resize', () => { setTimeout(snapIconsToPath, 100); });
-</script>
+// Refresh button with rotation animation and data reload
+async function handleRefresh() {
+    const btn = document.getElementById("refreshBtn");
+    btn.classList.add("rotate");
+    await fetchData();
+    setTimeout(() => btn.classList.remove("rotate"), 600);
+}
 
+// Optional: city selection panel (simple alert for now, but can be extended)
+function toggleControls() {
+    // Simple feedback – you can replace with a proper dropdown if needed
+    alert("City selection is currently fixed to Ain Oussera, Algeria.\n(You can change the city in the fetch URL if needed.)");
+}
+
+// Initialize
+function init() {
+    updatePathLength();
+    snapIconsToPath();
+    fetchData();
+    setInterval(updateWidget, 1000);
+}
+
+// Re-snap on resize
+window.addEventListener('resize', () => {
+    setTimeout(() => {
+        updatePathLength();
+        snapIconsToPath();
+        updateWidget(); // redraw arc offset
+    }, 100);
+});
+
+init();
+</script>
 </body>
 </html>
