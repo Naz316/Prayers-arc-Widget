@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prayer Arc · Icons Merged with Line</title>
+<title>Scalable Prayer Arc · Notion Ready</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
@@ -11,28 +11,30 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-        background: #c0c0c0;
+        background: transparent;
         display: flex;
         justify-content: center;
         align-items: center;
         min-height: 100vh;
         font-family: 'Roboto', sans-serif;
+        overflow: hidden;
     }
 
     [lang="ar"] { font-family: 'Cairo', sans-serif; }
 
+    /* Enlarged Base Container */
     .arc-widget {
-        width: 380px;
-        height: 240px;
+        width: 95%;
+        max-width: 700px; /* Bigger default size */
+        aspect-ratio: 380 / 240; /* Keeps proportions perfect when resizing */
         border-radius: 26px;
         overflow: hidden;
         position: relative;
-        background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
+        background: linear-gradient(180deg, #6f8cff, #3f4edb);
         box-shadow: 0 20px 60px rgba(0,0,0,0.4);
         transition: background 1s ease;
     }
 
-    /* Dynamic Gradients */
     .bg-fajr { background: linear-gradient(180deg, #141e30 0%, #243b55 100%); }
     .bg-sunrise { background: linear-gradient(180deg, #3a7bd5 0%, #00d2ff 100%); }
     .bg-dhuhr { background: linear-gradient(180deg, #4A90E2 0%, #3478c9 100%); }
@@ -40,7 +42,6 @@
     .bg-maghrib { background: linear-gradient(180deg, #e65245 0%, #b33939 100%); }
     .bg-isha { background: linear-gradient(180deg, #0f0c29 0%, #302b63 100%); }
 
-    /* SVG */
     .arc-svg {
         position: absolute;
         width: 100%;
@@ -48,93 +49,64 @@
         z-index: 1;
     }
 
-    .track {
-        stroke: rgba(255, 255, 255, 0.2);
-        stroke-width: 10;
-        fill: none;
-        stroke-linecap: round;
-    }
+    .track { stroke: rgba(255, 255, 255, 0.2); stroke-width: 10; fill: none; stroke-linecap: round; }
+    .progress { stroke: white; stroke-width: 10; fill: none; stroke-linecap: round; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8)); transition: stroke-dashoffset 0.5s ease; }
 
-    .progress {
-        stroke: white;
-        stroke-width: 10;
-        fill: none;
-        stroke-linecap: round;
-        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
-        transition: stroke-dashoffset 0.5s ease;
-    }
-
-    /* Center Info */
     .center-info {
         position: absolute;
-        top: 55%;
-        left: 50%;
+        top: 55%; left: 50%;
         transform: translate(-50%, -50%);
         text-align: center;
         color: white;
         z-index: 2;
+        width: 100%;
     }
 
-    .prayer-name { font-size: 1.1rem; font-weight: 500; }
-    .prayer-time { font-size: 1.8rem; font-weight: bold; line-height: 1.1; }
-    .city-name { font-size: 0.8rem; opacity: 0.8; margin-top: 5px; }
+    /* Relative Font Sizes */
+    .prayer-name { font-size: 1.2rem; font-weight: 500; }
+    .prayer-time { font-size: 2.2rem; font-weight: bold; line-height: 1.1; }
+    .city-name { font-size: 0.9rem; opacity: 0.8; margin-top: 5px; }
 
-    /* Icons */
     .prayer-icon {
         position: absolute;
-        width: 38px;
-        height: 38px;
+        width: 11%; /* Scale based on container width */
+        aspect-ratio: 1/1;
         border-radius: 50%;
         background: white;
         display: flex;
         align-items: center;
         justify-content: center;
         transform: translate(-50%, -50%);
-        color: #333;
         z-index: 15;
-        transition: all 0.2s ease;
         box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         border: 1px solid rgba(255,255,255,0.5);
     }
 
-    .prayer-icon img { width: 22px; filter: none; }
+    .prayer-icon img { width: 60%; }
 
     .prayer-icon.current {
         background: gold;
-        width: 44px;
-        height: 44px;
+        width: 13%;
         box-shadow: 0 0 15px gold;
         border: 2px solid white;
     }
-    .prayer-icon.current img { width: 26px; filter: none; }
 
-    /* Top buttons */
     .top-left, .top-right {
         position: absolute;
         z-index: 20;
-        top: 12px;
-        width: 44px;
-        height: 44px;
+        top: 5%;
+        width: 11%;
+        aspect-ratio: 1/1;
         border-radius: 50%;
         background: rgba(0,0,0,0.5);
         backdrop-filter: blur(8px);
         border: 1px solid rgba(255,255,255,0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
+        display: flex; align-items: center; justify-content: center;
         cursor: pointer;
-        transition: 0.2s;
     }
-    .top-left { left: 12px; }
-    .top-right { right: 12px; }
-    .top-left:hover, .top-right:hover { background: rgba(0,0,0,0.7); transform: scale(1.05); }
-
-    .top-left img, .top-right img {
-        width: 22px;
-        height: 22px;
-        filter: invert(1);
-    }
+    .top-left { left: 4%; }
+    .top-right { right: 4%; }
+    .top-left img, .top-right img { width: 50%; filter: invert(1); }
 </style>
 </head>
 
@@ -145,17 +117,15 @@
     <div class="top-left" onclick="toggleLang()" id="langBtn">
         <img src="https://cdn-icons-png.flaticon.com/128/18882/18882472.png">
     </div>
-    <!-- Fixed: Now refreshes the site page -->
     <div class="top-right" onclick="window.location.reload()">
         <img src="https://cdn-icons-png.flaticon.com/128/9311/9311549.png">
     </div>
 
-    <svg class="arc-svg" viewBox="0 0 380 240">
+    <svg class="arc-svg" viewBox="0 0 380 240" id="svgBox">
         <path id="arcTrack" class="track" d="M 30 170 L 90 170 A 100 100 0 0 1 290 170 L 350 170"/>
         <path id="arcProgress" class="progress" d="M 30 170 L 90 170 A 100 100 0 0 1 290 170 L 350 170"/>
     </svg>
 
-    <!-- Icons -->
     <div class="prayer-icon" id="icon-fajr"><img src="https://cdn-icons-png.flaticon.com/128/4067/4067304.png"></div>
     <div class="prayer-icon" id="icon-sunrise"><img src="https://cdn-icons-png.flaticon.com/128/11546/11546454.png"></div>
     <div class="prayer-icon" id="icon-dhuhr"><img src="https://cdn-icons-png.flaticon.com/128/1004/1004519.png"></div>
@@ -180,16 +150,25 @@ const TRANSLATIONS = {
 };
 
 const PATH = document.getElementById("arcProgress");
-const PATH_LEN = PATH.getTotalLength();
 let state = { timings: null, lang: 'en' };
 
+// CRITICAL FIX: Calculates positions based on actual rendered pixel width
 function snapIconsToPath() {
+    const pathLen = PATH.getTotalLength();
+    const svgRect = document.getElementById('svgBox').getBoundingClientRect();
+    
+    // Scaling ratio
+    const scaleX = svgRect.width / 380;
+    const scaleY = svgRect.height / 240;
+
     PRAYERS.forEach(p => {
         const perc = NODES[p];
-        const pt = PATH.getPointAtLength(perc * PATH_LEN);
+        const pt = PATH.getPointAtLength(perc * pathLen);
         const el = document.getElementById("icon-" + p.toLowerCase());
-        el.style.left = pt.x + "px";
-        el.style.top = pt.y + "px";
+        
+        // Position icon exactly on the scaled line
+        el.style.left = (pt.x * scaleX) + "px";
+        el.style.top = (pt.y * scaleY) + "px";
     });
 }
 
@@ -228,41 +207,35 @@ function updateWidget() {
     document.getElementById("icon-" + next.toLowerCase()).classList.add('current');
 
     let totalPerc;
-    // Fixed: Progress stops at Isha (100%) and starts at Fajr (0%) correctly
-    if (isPastIsha) {
-        totalPerc = 1; 
-    } else if (minsNow < toMin(state.timings["Fajr"])) {
-        totalPerc = 0;
-    } else {
-        const startPerc = NODES[prev];
-        const endPerc = NODES[next];
-        const tStart = toMin(state.timings[prev]);
-        let tEnd = toMin(state.timings[next]);
-        
-        const progress = Math.max(0, Math.min(1, (minsNow - tStart) / (tEnd - tStart)));
-        totalPerc = startPerc + (progress * (endPerc - startPerc));
+    if (isPastIsha) totalPerc = 1; 
+    else if (minsNow < toMin(state.timings["Fajr"])) totalPerc = 0;
+    else {
+        const progress = Math.max(0, Math.min(1, (minsNow - toMin(state.timings[prev])) / (toMin(state.timings[next]) - toMin(state.timings[prev]))));
+        totalPerc = NODES[prev] + (progress * (NODES[next] - NODES[prev]));
     }
 
-    PATH.style.strokeDasharray = PATH_LEN;
-    PATH.style.strokeDashoffset = PATH_LEN * (1 - totalPerc);
+    const pathLen = PATH.getTotalLength();
+    PATH.style.strokeDasharray = pathLen;
+    PATH.style.strokeDashoffset = pathLen * (1 - totalPerc);
 }
 
-function toMin(t) {
-    const [h, m] = t.split(":").map(Number);
-    return h * 60 + m;
-}
+function toMin(t) { const [h, m] = t.split(":").map(Number); return h * 60 + m; }
 
 function toggleLang() {
     state.lang = state.lang === 'en' ? 'ar' : 'en';
-    document.documentElement.lang = state.lang;
     document.getElementById("city-display").innerText = TRANSLATIONS[state.lang].city;
     updateWidget();
 }
 
-snapIconsToPath();
+// Initial Run
 fetchData();
 setInterval(updateWidget, 1000);
-window.addEventListener('resize', () => { setTimeout(snapIconsToPath, 100); });
+
+// RE-SNAP ICONS WHENEVER SIZE CHANGES (Perfect for Notion)
+const resizeObserver = new ResizeObserver(() => {
+    snapIconsToPath();
+});
+resizeObserver.observe(document.getElementById('widget'));
 </script>
 
 </body>
