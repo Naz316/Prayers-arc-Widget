@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>Prayer Arc · Smaller Icons</title>
+<title>Prayer Arc · Extended Line</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -48,8 +48,20 @@
         height: 100%;
         z-index: 1;
     }
-    .track { stroke: rgba(255,255,255,0.2); stroke-width: 10; fill: none; stroke-linecap: round; }
-    .progress { stroke: white; stroke-width: 10; fill: none; stroke-linecap: round; filter: drop-shadow(0 0 6px rgba(255,255,255,0.8)); transition: stroke-dashoffset 0.5s ease; }
+    .track {
+        stroke: rgba(255,255,255,0.2);
+        stroke-width: 10;
+        fill: none;
+        stroke-linecap: round;
+    }
+    .progress {
+        stroke: white;
+        stroke-width: 10;
+        fill: none;
+        stroke-linecap: round;
+        filter: drop-shadow(0 0 6px rgba(255,255,255,0.8));
+        transition: stroke-dashoffset 0.5s ease;
+    }
 
     .center-info {
         position: absolute;
@@ -83,7 +95,7 @@
     /* Icons – slightly smaller */
     .prayer-icon {
         position: absolute;
-        width: 9%;           /* reduced from 11% */
+        width: 9%;
         aspect-ratio: 1/1;
         border-radius: 50%;
         background: white;
@@ -95,10 +107,10 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         border: 1px solid rgba(255,255,255,0.5);
     }
-    .prayer-icon img { width: 55%; object-fit: contain; }  /* slightly smaller inside */
+    .prayer-icon img { width: 55%; object-fit: contain; }
     .prayer-icon.current {
         background: gold;
-        width: 11%;          /* reduced from 13% */
+        width: 11%;
         box-shadow: 0 0 15px gold;
         border: 2px solid white;
     }
@@ -107,7 +119,7 @@
         position: absolute;
         z-index: 20;
         top: 5%;
-        width: 10%;          /* kept similar (unchanged) */
+        width: 10%;
         aspect-ratio: 1/1;
         border-radius: 50%;
         background: rgba(0,0,0,0.5);
@@ -176,8 +188,14 @@
     </div>
 
     <svg class="arc-svg" viewBox="0 0 380 240" id="svgBox">
-        <path id="arcTrack" class="track" d="M 30 170 L 90 170 A 100 100 0 0 1 290 170 L 350 170"/>
-        <path id="arcProgress" class="progress" d="M 30 170 L 90 170 A 100 100 0 0 1 290 170 L 350 170"/>
+        <!-- Extended left line (before Fajr) -->
+        <line x1="0" y1="170" x2="30" y2="170" class="track" />
+        <!-- Main arc path (track) -->
+        <path id="arcTrack" class="track" d="M 30 170 L 90 170 A 100 100 0 0 1 290 170 L 350 170" />
+        <!-- Extended right line (after Isha) -->
+        <line x1="350" y1="170" x2="380" y2="170" class="track" />
+        <!-- Progress arc (only main part) -->
+        <path id="arcProgress" class="progress" d="M 30 170 L 90 170 A 100 100 0 0 1 290 170 L 350 170" />
     </svg>
 
     <div class="prayer-icon" id="icon-fajr"><img src="https://cdn-icons-png.flaticon.com/128/3093/3093380.png"></div>
@@ -185,7 +203,7 @@
     <div class="prayer-icon" id="icon-dhuhr"><img src="https://cdn-icons-png.flaticon.com/128/1004/1004519.png"></div>
     <div class="prayer-icon" id="icon-asr"><img src="https://cdn-icons-png.flaticon.com/128/3313/3313911.png"></div>
     <div class="prayer-icon" id="icon-maghrib"><img src="https://cdn-icons-png.flaticon.com/128/8840/8840934.png"></div>
-    <div class="prayer-icon" id="icon-isha"><img src="https://cdn-icons-png.flaticon.com/128/2116/2116201.png"></div>
+    <div class="prayer-icon" id="icon-isha"><img src="https://cdn-icons-png.flaticon.com/128/606/606807.png"></div>
 
     <div class="center-info">
         <div class="prayer-name" id="prayer-name">--</div>
