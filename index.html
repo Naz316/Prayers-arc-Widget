@@ -30,13 +30,8 @@
         transition: background 1s ease;
     }
 
-    /* make sure the widget itself clips only the gradient, not the popup */
-    .arc-widget {
-        overflow: visible;
-    }
-    .arc-svg {
-        overflow: visible;
-    }
+    .arc-widget { overflow: visible; }
+    .arc-svg { overflow: visible; }
 
     .bg-fajr { background: linear-gradient(180deg, #141e30 0%, #243b55 100%); }
     .bg-sunrise { background: linear-gradient(180deg, #3a7bd5 0%, #00d2ff 100%); }
@@ -119,7 +114,7 @@
     .top-right { right: 4%; }
     .top-left img, .top-right img { width: 50%; filter: invert(1); }
 
-    /* Control panel that appears when city name is clicked */
+    /* Control panel */
     .controls-panel {
         position: absolute;
         bottom: 0;
@@ -192,7 +187,6 @@
         <div class="city-name" id="city-display">Ain Oussera</div>
     </div>
 
-    <!-- Hidden control panel -->
     <div class="controls-panel" id="controlsPanel">
         <div class="select-row">
             <div class="select-group">
@@ -205,13 +199,13 @@
             </div>
         </div>
         <div class="action-buttons">
-            <button onclick="closeControls()">Close</button>
+            <button id="closeBtn">Close</button>
         </div>
     </div>
 </div>
 
 <script>
-// ==================== UNIQUE ID FOR MULTIPLE PAGES ====================
+// ==================== UNIQUE ID ====================
 const urlParams = new URLSearchParams(window.location.search);
 const widgetId = urlParams.get('id') || 'default';
 
@@ -219,8 +213,20 @@ const widgetId = urlParams.get('id') || 'default';
 const PRAYERS = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
 const NODES = { "Fajr": 0, "Sunrise": 0.15, "Dhuhr": 0.50, "Asr": 0.72, "Maghrib": 0.85, "Isha": 1 };
 const TRANSLATIONS = {
-    en: { Fajr: "Fajr", Sunrise: "Sunrise", Dhuhr: "Dhuhr", Asr: "Asr", Maghrib: "Maghrib", Isha: "Isha", city: "Ain Oussera" },
-    ar: { Fajr: "الفجر", Sunrise: "الشروق", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء", city: "عين وسارة" }
+    en: {
+        Fajr: "Fajr", Sunrise: "Sunrise", Dhuhr: "Dhuhr", Asr: "Asr", Maghrib: "Maghrib", Isha: "Isha",
+        city: "Ain Oussera",
+        cityLabel: "City",
+        countryLabel: "Country",
+        close: "Close"
+    },
+    ar: {
+        Fajr: "الفجر", Sunrise: "الشروق", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء",
+        city: "عين وسارة",
+        cityLabel: "المدينة",
+        countryLabel: "الدولة",
+        close: "إغلاق"
+    }
 };
 
 // ==================== COUNTRY & CITY DATA ====================
@@ -277,6 +283,10 @@ function updateSelectTexts() {
         const eng = citySel.options[i].value;
         citySel.options[i].text = (state.lang === 'ar' && DICT_CITIES[eng]) ? DICT_CITIES[eng] : eng;
     }
+    // Also update the labels of the control panel
+    document.getElementById('cityLabel').innerText = TRANSLATIONS[state.lang].cityLabel;
+    document.getElementById('countryLabel').innerText = TRANSLATIONS[state.lang].countryLabel;
+    document.getElementById('closeBtn').innerText = TRANSLATIONS[state.lang].close;
 }
 
 function populateCities() {
@@ -383,9 +393,6 @@ function updateWidget() {
     if (!PATH_LEN) PATH_LEN = PATH.getTotalLength();
     PATH.style.strokeDasharray = PATH_LEN;
     PATH.style.strokeDashoffset = PATH_LEN * (1 - totalPerc);
-    // also update marker position (optional, but adds visual)
-    const markerPoint = PATH.getPointAtLength(totalPerc * PATH_LEN);
-    // if we had a marker circle we would move it, but the arc widget doesn't have a separate marker – it's fine
 }
 
 // ==================== UI CONTROL FUNCTIONS ====================
@@ -428,10 +435,10 @@ function fullRefresh() {
 document.getElementById('langBtn').addEventListener('click', toggleLang);
 document.getElementById('refreshBtn').addEventListener('click', fullRefresh);
 document.getElementById('city-display').addEventListener('click', toggleControls);
+document.getElementById('closeBtn').addEventListener('click', closeControls);
 
 // ==================== INIT ====================
 function init() {
-    // Load saved language, city, country
     const savedLang = localStorage.getItem(widgetId + '_lang');
     if (savedLang) state.lang = savedLang;
     document.documentElement.lang = state.lang;
@@ -440,7 +447,6 @@ function init() {
     const savedCountry = localStorage.getItem(widgetId + '_country');
     if (savedCountry) state.country = savedCountry;
 
-    // Populate country select
     const countrySelect = document.getElementById('countrySelect');
     for (let c in COUNTRY_DATA) {
         const opt = document.createElement('option');
@@ -451,7 +457,7 @@ function init() {
     countrySelect.value = state.country;
     populateCities();
     document.getElementById('citySelect').value = state.city;
-    updateSelectTexts();
+    updateSelectTexts();   // this will also set the labels (City/Country/Close) in the current language
     updateLocationText();
 
     PATH_LEN = PATH.getTotalLength();
@@ -460,7 +466,6 @@ function init() {
     setInterval(updateWidget, 1000);
 }
 
-// Resize observer to keep icons on arc
 const resizeObserver = new ResizeObserver(() => {
     PATH_LEN = PATH.getTotalLength();
     snapIconsToPath();
