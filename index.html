@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>Prayer Arc · Full Stretch · Notion Ready</title>
+<title>Prayer Arc · Full City/Country Selection</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -11,26 +11,31 @@
     html, body {
         background: transparent !important;
         width: 100%;
-        height: auto;
         display: flex;
         justify-content: center;
         align-items: center;
         font-family: 'Roboto', sans-serif;
-        overflow-x: hidden;
     }
     [lang="ar"] { font-family: 'Cairo', sans-serif; }
 
-    /* FULL STRETCH – no max-width, no fixed height */
     .arc-widget {
         width: 100% !important;
         max-width: 100% !important;
-        aspect-ratio: 380 / 240;      /* shape preserved */
+        aspect-ratio: 380 / 240;
         border-radius: 26px;
-        overflow: hidden;
+        overflow: visible;
         position: relative;
         background: linear-gradient(180deg, #6f8cff, #3f4edb);
         box-shadow: 0 20px 40px rgba(0,0,0,0.25);
         transition: background 1s ease;
+    }
+
+    /* make sure the widget itself clips only the gradient, not the popup */
+    .arc-widget {
+        overflow: visible;
+    }
+    .arc-svg {
+        overflow: visible;
     }
 
     .bg-fajr { background: linear-gradient(180deg, #141e30 0%, #243b55 100%); }
@@ -42,6 +47,8 @@
 
     .arc-svg {
         position: absolute;
+        top: 0;
+        left: 0;
         width: 100%;
         height: 100%;
         z-index: 1;
@@ -112,9 +119,49 @@
     .top-right { right: 4%; }
     .top-left img, .top-right img { width: 50%; filter: invert(1); }
 
-    /* prevent any accidental overflow */
-    body, .arc-widget, svg, .prayer-icon, .top-left, .top-right {
-        overflow: visible;
+    /* Control panel that appears when city name is clicked */
+    .controls-panel {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0,0,0,0.8);
+        backdrop-filter: blur(12px);
+        padding: 12px 16px;
+        display: none;
+        flex-direction: column;
+        gap: 8px;
+        border-top: 1px solid rgba(255,255,255,0.2);
+        z-index: 30;
+        border-radius: 20px 20px 0 0;
+    }
+    .controls-panel.show { display: flex; }
+    .select-row { display: flex; gap: 10px; }
+    .select-group { flex: 1; }
+    .select-group label { font-size: 0.6rem; color: #ccc; margin-bottom: 3px; display: block; text-transform: uppercase; }
+    select {
+        width: 100%;
+        background: rgba(0,0,0,0.6);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        padding: 6px 8px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        outline: none;
+    }
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+    .action-buttons button {
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        cursor: pointer;
     }
 </style>
 </head>
@@ -144,9 +191,31 @@
         <div class="prayer-time" id="prayer-time">--:--</div>
         <div class="city-name" id="city-display">Ain Oussera</div>
     </div>
+
+    <!-- Hidden control panel -->
+    <div class="controls-panel" id="controlsPanel">
+        <div class="select-row">
+            <div class="select-group">
+                <label id="cityLabel">City</label>
+                <select id="citySelect" onchange="updateLocation()"></select>
+            </div>
+            <div class="select-group">
+                <label id="countryLabel">Country</label>
+                <select id="countrySelect" onchange="changeCountry()"></select>
+            </div>
+        </div>
+        <div class="action-buttons">
+            <button onclick="closeControls()">Close</button>
+        </div>
+    </div>
 </div>
 
 <script>
+// ==================== UNIQUE ID FOR MULTIPLE PAGES ====================
+const urlParams = new URLSearchParams(window.location.search);
+const widgetId = urlParams.get('id') || 'default';
+
+// ==================== PRAYER DATA ====================
 const PRAYERS = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
 const NODES = { "Fajr": 0, "Sunrise": 0.15, "Dhuhr": 0.50, "Asr": 0.72, "Maghrib": 0.85, "Isha": 1 };
 const TRANSLATIONS = {
@@ -154,19 +223,90 @@ const TRANSLATIONS = {
     ar: { Fajr: "الفجر", Sunrise: "الشروق", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء", city: "عين وسارة" }
 };
 
-const PATH = document.getElementById("arcProgress");
-let state = { timings: null, lang: 'en' };
+// ==================== COUNTRY & CITY DATA ====================
+const COUNTRY_DATA = {
+    "Algeria": ["Ain Oussera", "Algiers"],
+    "Saudi Arabia": ["Makkah", "Madinah"],
+    "Palestine": ["Gaza", "Jerusalem"],
+    "Egypt": ["Cairo"],
+    "Morocco": ["Rabat"],
+    "Tunisia": ["Tunis"],
+    "France": ["Paris"],
+    "US": ["Washington"],
+    "UK": ["London"],
+    "Turkey": ["Ankara"],
+    "Indonesia": ["Jakarta"],
+    "Malaysia": ["Kuala Lumpur"]
+};
+const DICT_COUNTRIES = {
+    "Algeria": "الجزائر", "Palestine": "فلسطين", "Saudi Arabia": "السعودية", "Egypt": "مصر",
+    "Morocco": "المغرب", "Tunisia": "تونس", "France": "فرنسا", "US": "أمريكا",
+    "UK": "بريطانيا", "Turkey": "تركيا", "Indonesia": "إندونيسيا", "Malaysia": "ماليزيا"
+};
+const DICT_CITIES = {
+    "Ain Oussera": "عين وسارة", "Algiers": "الجزائر العاصمة", "Makkah": "مكة المكرمة", "Madinah": "المدينة المنورة",
+    "Gaza": "غزة", "Jerusalem": "القدس", "Cairo": "القاهرة", "Rabat": "الرباط", "Tunis": "تونس العاصمة",
+    "Paris": "باريس", "Washington": "واشنطن", "London": "لندن", "Ankara": "أنقرة", "Jakarta": "جاكرتا", "Kuala Lumpur": "كوالالمبور"
+};
 
-// Snap icons to the arc path (scaled with widget size)
+// ==================== STATE ====================
+let state = {
+    lang: localStorage.getItem(widgetId + '_lang') || 'en',
+    city: localStorage.getItem(widgetId + '_city') || "Ain Oussera",
+    country: localStorage.getItem(widgetId + '_country') || "Algeria",
+    timings: null,
+    timezone: null
+};
+
+const PATH = document.getElementById("arcProgress");
+let PATH_LEN = null;
+
+// ==================== HELPER FUNCTIONS ====================
+function getKeyByValue(obj, val) {
+    return Object.keys(obj).find(key => obj[key] === val);
+}
+
+function updateSelectTexts() {
+    const countrySel = document.getElementById('countrySelect');
+    for (let i = 0; i < countrySel.options.length; i++) {
+        const eng = countrySel.options[i].value;
+        countrySel.options[i].text = (state.lang === 'ar' && DICT_COUNTRIES[eng]) ? DICT_COUNTRIES[eng] : eng;
+    }
+    const citySel = document.getElementById('citySelect');
+    for (let i = 0; i < citySel.options.length; i++) {
+        const eng = citySel.options[i].value;
+        citySel.options[i].text = (state.lang === 'ar' && DICT_CITIES[eng]) ? DICT_CITIES[eng] : eng;
+    }
+}
+
+function populateCities() {
+    const citySelect = document.getElementById('citySelect');
+    citySelect.innerHTML = '';
+    const cities = COUNTRY_DATA[state.country] || ["Capital"];
+    cities.forEach(city => {
+        const opt = document.createElement('option');
+        opt.value = city;
+        opt.text = city;
+        citySelect.appendChild(opt);
+    });
+    citySelect.value = state.city;
+    if (state.lang === 'ar') updateSelectTexts();
+}
+
+function updateLocationText() {
+    let display = state.city;
+    if (state.lang === 'ar') display = DICT_CITIES[display] || display;
+    document.getElementById('city-display').innerText = display;
+}
+
 function snapIconsToPath() {
-    if (!PATH) return;
-    const pathLen = PATH.getTotalLength();
+    if (!PATH_LEN) PATH_LEN = PATH.getTotalLength();
     const svgRect = document.getElementById('svgBox').getBoundingClientRect();
     const scaleX = svgRect.width / 380;
     const scaleY = svgRect.height / 240;
     PRAYERS.forEach(p => {
         const perc = NODES[p];
-        const pt = PATH.getPointAtLength(perc * pathLen);
+        const pt = PATH.getPointAtLength(perc * PATH_LEN);
         const el = document.getElementById("icon-" + p.toLowerCase());
         if (el) {
             el.style.left = (pt.x * scaleX) + "px";
@@ -177,23 +317,44 @@ function snapIconsToPath() {
 
 async function fetchData() {
     try {
-        const res = await fetch("https://api.aladhan.com/v1/timingsByCity?city=Ain%20Oussera&country=Algeria&method=19");
+        let engCity = state.city;
+        let engCountry = state.country;
+        const kCity = Object.keys(DICT_CITIES).find(key => DICT_CITIES[key] === state.city);
+        if (kCity) engCity = kCity;
+        const kCountry = Object.keys(DICT_COUNTRIES).find(key => DICT_COUNTRIES[key] === state.country);
+        if (kCountry) engCountry = kCountry;
+        const url = `https://api.aladhan.com/v1/timingsByCity?city=${engCity}&country=${engCountry}&method=19`;
+        const res = await fetch(url);
         const data = await res.json();
         if (data.code === 200) {
             state.timings = data.data.timings;
+            state.timezone = data.data.meta.timezone;
             updateWidget();
         }
     } catch (e) { console.error("Fetch failed", e); }
 }
 
+function getCurrentTimeInZone() {
+    const now = new Date();
+    if (!state.timezone) return { h: now.getHours(), m: now.getMinutes(), s: now.getSeconds() };
+    const formatter = new Intl.DateTimeFormat('en-GB', { timeZone: state.timezone, hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false });
+    const parts = formatter.formatToParts(now);
+    const h = parseInt(parts.find(p => p.type === 'hour').value);
+    const m = parseInt(parts.find(p => p.type === 'minute').value);
+    const s = parseInt(parts.find(p => p.type === 'second').value);
+    return { h, m, s };
+}
+
+function toMin(t) { const [h, m] = t.split(":").map(Number); return h*60 + m; }
+
 function updateWidget() {
     if (!state.timings) return;
-    const now = new Date();
-    const minsNow = now.getHours() * 60 + now.getMinutes();
+    const now = getCurrentTimeInZone();
+    const minsNow = now.h*60 + now.m;
 
     let next = "Fajr", prev = "Isha";
     let isPastIsha = true;
-    for (let i = 0; i < PRAYERS.length; i++) {
+    for (let i=0; i<PRAYERS.length; i++) {
         const pm = toMin(state.timings[PRAYERS[i]]);
         if (pm > minsNow) {
             next = PRAYERS[i];
@@ -219,35 +380,93 @@ function updateWidget() {
         totalPerc = NODES[prev] + (progress * (NODES[next] - NODES[prev]));
     }
 
-    const pathLen = PATH.getTotalLength();
-    PATH.style.strokeDasharray = pathLen;
-    PATH.style.strokeDashoffset = pathLen * (1 - totalPerc);
+    if (!PATH_LEN) PATH_LEN = PATH.getTotalLength();
+    PATH.style.strokeDasharray = PATH_LEN;
+    PATH.style.strokeDashoffset = PATH_LEN * (1 - totalPerc);
+    // also update marker position (optional, but adds visual)
+    const markerPoint = PATH.getPointAtLength(totalPerc * PATH_LEN);
+    // if we had a marker circle we would move it, but the arc widget doesn't have a separate marker – it's fine
 }
 
-function toMin(t) { const [h, m] = t.split(":").map(Number); return h*60 + m; }
-
+// ==================== UI CONTROL FUNCTIONS ====================
+function toggleControls() {
+    document.getElementById('controlsPanel').classList.toggle('show');
+}
+function closeControls() {
+    document.getElementById('controlsPanel').classList.remove('show');
+}
+function changeCountry() {
+    const selected = document.getElementById('countrySelect').value;
+    const engCountry = getKeyByValue(DICT_COUNTRIES, selected) || selected;
+    state.country = engCountry;
+    localStorage.setItem(widgetId + '_country', state.country);
+    populateCities();
+    const citySel = document.getElementById('citySelect');
+    state.city = citySel.options[0].value;
+    localStorage.setItem(widgetId + '_city', state.city);
+    updateLocation();
+}
+function updateLocation() {
+    state.city = document.getElementById('citySelect').value;
+    localStorage.setItem(widgetId + '_city', state.city);
+    updateLocationText();
+    fetchData();
+}
 function toggleLang() {
     state.lang = state.lang === 'en' ? 'ar' : 'en';
-    document.getElementById("city-display").innerText = TRANSLATIONS[state.lang].city;
+    localStorage.setItem(widgetId + '_lang', state.lang);
+    document.documentElement.lang = state.lang;
+    updateSelectTexts();
+    updateLocationText();
     updateWidget();
 }
-
 function fullRefresh() {
     window.location.reload();
 }
 
-// Event listeners (reliable in Notion)
+// ==================== EVENT LISTENERS ====================
 document.getElementById('langBtn').addEventListener('click', toggleLang);
 document.getElementById('refreshBtn').addEventListener('click', fullRefresh);
+document.getElementById('city-display').addEventListener('click', toggleControls);
 
-// Initialize
-fetchData();
-setInterval(updateWidget, 1000);
+// ==================== INIT ====================
+function init() {
+    // Load saved language, city, country
+    const savedLang = localStorage.getItem(widgetId + '_lang');
+    if (savedLang) state.lang = savedLang;
+    document.documentElement.lang = state.lang;
+    const savedCity = localStorage.getItem(widgetId + '_city');
+    if (savedCity) state.city = savedCity;
+    const savedCountry = localStorage.getItem(widgetId + '_country');
+    if (savedCountry) state.country = savedCountry;
 
-// Resize observer to keep icons glued to arc
-const resizeObserver = new ResizeObserver(() => snapIconsToPath());
+    // Populate country select
+    const countrySelect = document.getElementById('countrySelect');
+    for (let c in COUNTRY_DATA) {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.text = c;
+        countrySelect.appendChild(opt);
+    }
+    countrySelect.value = state.country;
+    populateCities();
+    document.getElementById('citySelect').value = state.city;
+    updateSelectTexts();
+    updateLocationText();
+
+    PATH_LEN = PATH.getTotalLength();
+    snapIconsToPath();
+    fetchData();
+    setInterval(updateWidget, 1000);
+}
+
+// Resize observer to keep icons on arc
+const resizeObserver = new ResizeObserver(() => {
+    PATH_LEN = PATH.getTotalLength();
+    snapIconsToPath();
+});
 resizeObserver.observe(document.getElementById('widget'));
-window.addEventListener('load', () => setTimeout(snapIconsToPath, 100));
+window.addEventListener('load', init);
 </script>
 </body>
 </html>
