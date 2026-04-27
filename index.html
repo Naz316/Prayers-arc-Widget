@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>Prayer Arc · Full City/Country Selection</title>
+<title>Prayer Arc · Countdown below City</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -67,11 +67,17 @@
     .city-name {
         font-size: clamp(0.7rem, 2.5vw, 0.9rem);
         opacity: 0.85;
-        margin-top: 5px;
+        margin-top: 4px;
         pointer-events: auto;
         cursor: pointer;
         text-decoration: underline;
         display: inline-block;
+    }
+    .countdown {
+        font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+        opacity: 0.9;
+        margin-top: 2px;
+        letter-spacing: 0.5px;
     }
 
     .prayer-icon {
@@ -114,7 +120,6 @@
     .top-right { right: 4%; }
     .top-left img, .top-right img { width: 50%; filter: invert(1); }
 
-    /* Control panel */
     .controls-panel {
         position: absolute;
         bottom: 0;
@@ -185,6 +190,7 @@
         <div class="prayer-name" id="prayer-name">--</div>
         <div class="prayer-time" id="prayer-time">--:--</div>
         <div class="city-name" id="city-display">Ain Oussera</div>
+        <div class="countdown" id="countdownDisplay">--:--:--</div>
     </div>
 
     <div class="controls-panel" id="controlsPanel">
@@ -218,14 +224,16 @@ const TRANSLATIONS = {
         city: "Ain Oussera",
         cityLabel: "City",
         countryLabel: "Country",
-        close: "Close"
+        close: "Close",
+        countdownLabel: "in"
     },
     ar: {
         Fajr: "الفجر", Sunrise: "الشروق", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء",
         city: "عين وسارة",
         cityLabel: "المدينة",
         countryLabel: "الدولة",
-        close: "إغلاق"
+        close: "إغلاق",
+        countdownLabel: "متبقي"
     }
 };
 
@@ -283,7 +291,6 @@ function updateSelectTexts() {
         const eng = citySel.options[i].value;
         citySel.options[i].text = (state.lang === 'ar' && DICT_CITIES[eng]) ? DICT_CITIES[eng] : eng;
     }
-    // Also update the labels of the control panel
     document.getElementById('cityLabel').innerText = TRANSLATIONS[state.lang].cityLabel;
     document.getElementById('countryLabel').innerText = TRANSLATIONS[state.lang].countryLabel;
     document.getElementById('closeBtn').innerText = TRANSLATIONS[state.lang].close;
@@ -374,14 +381,17 @@ function updateWidget() {
         }
     }
 
+    // Update prayer name and time
     document.getElementById("prayer-time").innerText = state.timings[next];
     document.getElementById("prayer-name").innerText = TRANSLATIONS[state.lang][next];
     document.getElementById("widget").className = `arc-widget bg-${next.toLowerCase()}`;
 
+    // Update current icon highlight
     document.querySelectorAll('.prayer-icon').forEach(el => el.classList.remove('current'));
     const activeIcon = document.getElementById("icon-" + next.toLowerCase());
     if (activeIcon) activeIcon.classList.add('current');
 
+    // Compute arc progress
     let totalPerc;
     if (isPastIsha) totalPerc = 1;
     else if (minsNow < toMin(state.timings["Fajr"])) totalPerc = 0;
@@ -393,6 +403,22 @@ function updateWidget() {
     if (!PATH_LEN) PATH_LEN = PATH.getTotalLength();
     PATH.style.strokeDasharray = PATH_LEN;
     PATH.style.strokeDashoffset = PATH_LEN * (1 - totalPerc);
+
+    // ========== COUNTDOWN CALCULATION ==========
+    let nextTotalMinutes = toMin(state.timings[next]);
+    let nextTotalSeconds = nextTotalMinutes * 60;
+    let currentTotalSeconds = (now.h*3600) + (now.m*60) + now.s;
+    if (isPastIsha) {
+        nextTotalSeconds += 24*3600;
+    }
+    let diffSeconds = nextTotalSeconds - currentTotalSeconds;
+    if (diffSeconds < 0) diffSeconds = 0;
+    const hours = Math.floor(diffSeconds / 3600);
+    const minutes = Math.floor((diffSeconds % 3600) / 60);
+    const seconds = diffSeconds % 60;
+    const timeString = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+    const countdownLabel = TRANSLATIONS[state.lang].countdownLabel;
+    document.getElementById('countdownDisplay').innerText = `${countdownLabel} ${timeString}`;
 }
 
 // ==================== UI CONTROL FUNCTIONS ====================
@@ -457,7 +483,7 @@ function init() {
     countrySelect.value = state.country;
     populateCities();
     document.getElementById('citySelect').value = state.city;
-    updateSelectTexts();   // this will also set the labels (City/Country/Close) in the current language
+    updateSelectTexts();
     updateLocationText();
 
     PATH_LEN = PATH.getTotalLength();
