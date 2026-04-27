@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>Prayer Arc · Notion Ready</title>
+<title>Prayer Arc · Full Stretch · Notion Ready</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -11,17 +11,20 @@
     html, body {
         background: transparent !important;
         width: 100%;
+        height: auto;
         display: flex;
         justify-content: center;
         align-items: center;
         font-family: 'Roboto', sans-serif;
+        overflow-x: hidden;
     }
     [lang="ar"] { font-family: 'Cairo', sans-serif; }
 
+    /* FULL STRETCH – no max-width, no fixed height */
     .arc-widget {
         width: 100% !important;
-        max-width: none !important;
-        aspect-ratio: 380 / 240;
+        max-width: 100% !important;
+        aspect-ratio: 380 / 240;      /* shape preserved */
         border-radius: 26px;
         overflow: hidden;
         position: relative;
@@ -66,6 +69,7 @@
         pointer-events: auto;
         cursor: pointer;
         text-decoration: underline;
+        display: inline-block;
     }
 
     .prayer-icon {
@@ -82,7 +86,7 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         border: 1px solid rgba(255,255,255,0.5);
     }
-    .prayer-icon img { width: 60%; }
+    .prayer-icon img { width: 60%; object-fit: contain; }
     .prayer-icon.current {
         background: gold;
         width: 13%;
@@ -107,6 +111,11 @@
     .top-left { left: 4%; }
     .top-right { right: 4%; }
     .top-left img, .top-right img { width: 50%; filter: invert(1); }
+
+    /* prevent any accidental overflow */
+    body, .arc-widget, svg, .prayer-icon, .top-left, .top-right {
+        overflow: visible;
+    }
 </style>
 </head>
 <body>
@@ -148,7 +157,9 @@ const TRANSLATIONS = {
 const PATH = document.getElementById("arcProgress");
 let state = { timings: null, lang: 'en' };
 
+// Snap icons to the arc path (scaled with widget size)
 function snapIconsToPath() {
+    if (!PATH) return;
     const pathLen = PATH.getTotalLength();
     const svgRect = document.getElementById('svgBox').getBoundingClientRect();
     const scaleX = svgRect.width / 380;
@@ -222,22 +233,21 @@ function toggleLang() {
 }
 
 function fullRefresh() {
-    // Force a hard reload, bypassing cache if possible
-    window.location.href = window.location.href;
+    window.location.reload();
 }
 
-// Attach event listeners manually (more reliable in Notion desktop)
+// Event listeners (reliable in Notion)
 document.getElementById('langBtn').addEventListener('click', toggleLang);
 document.getElementById('refreshBtn').addEventListener('click', fullRefresh);
 
-// Initial load
+// Initialize
 fetchData();
 setInterval(updateWidget, 1000);
 
-// Make icons snap on resize
+// Resize observer to keep icons glued to arc
 const resizeObserver = new ResizeObserver(() => snapIconsToPath());
 resizeObserver.observe(document.getElementById('widget'));
-window.addEventListener('load', () => setTimeout(snapIconsToPath, 50));
+window.addEventListener('load', () => setTimeout(snapIconsToPath, 100));
 </script>
 </body>
 </html>
