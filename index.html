@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>Prayer Arc · Full Stretch for Notion</title>
+<title>Prayer Arc · Notion Ready</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -18,7 +18,6 @@
     }
     [lang="ar"] { font-family: 'Cairo', sans-serif; }
 
-    /* FULL STRETCH – no max-width, fills the embed */
     .arc-widget {
         width: 100% !important;
         max-width: none !important;
@@ -112,11 +111,10 @@
 </head>
 <body>
 <div class="arc-widget" id="widget">
-
-    <div class="top-left" onclick="toggleLang()" id="langBtn">
+    <div class="top-left" id="langBtn">
         <img src="https://cdn-icons-png.flaticon.com/128/18882/18882472.png">
     </div>
-    <div class="top-right" onclick="window.location.reload()">
+    <div class="top-right" id="refreshBtn">
         <img src="https://cdn-icons-png.flaticon.com/128/9311/9311549.png">
     </div>
 
@@ -223,10 +221,20 @@ function toggleLang() {
     updateWidget();
 }
 
-// Initial fetch
+function fullRefresh() {
+    // Force a hard reload, bypassing cache if possible
+    window.location.href = window.location.href;
+}
+
+// Attach event listeners manually (more reliable in Notion desktop)
+document.getElementById('langBtn').addEventListener('click', toggleLang);
+document.getElementById('refreshBtn').addEventListener('click', fullRefresh);
+
+// Initial load
 fetchData();
 setInterval(updateWidget, 1000);
 
+// Make icons snap on resize
 const resizeObserver = new ResizeObserver(() => snapIconsToPath());
 resizeObserver.observe(document.getElementById('widget'));
 window.addEventListener('load', () => setTimeout(snapIconsToPath, 50));
