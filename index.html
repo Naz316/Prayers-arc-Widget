@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>Prayer Arc · Countdown below City</title>
+<title>Prayer Arc · Smaller Icons</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -80,9 +80,10 @@
         letter-spacing: 0.5px;
     }
 
+    /* Icons – slightly smaller */
     .prayer-icon {
         position: absolute;
-        width: 11%;
+        width: 9%;           /* reduced from 11% */
         aspect-ratio: 1/1;
         border-radius: 50%;
         background: white;
@@ -94,10 +95,10 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         border: 1px solid rgba(255,255,255,0.5);
     }
-    .prayer-icon img { width: 60%; object-fit: contain; }
+    .prayer-icon img { width: 55%; object-fit: contain; }  /* slightly smaller inside */
     .prayer-icon.current {
         background: gold;
-        width: 13%;
+        width: 11%;          /* reduced from 13% */
         box-shadow: 0 0 15px gold;
         border: 2px solid white;
     }
@@ -106,7 +107,7 @@
         position: absolute;
         z-index: 20;
         top: 5%;
-        width: 11%;
+        width: 10%;          /* kept similar (unchanged) */
         aspect-ratio: 1/1;
         border-radius: 50%;
         background: rgba(0,0,0,0.5);
@@ -381,17 +382,14 @@ function updateWidget() {
         }
     }
 
-    // Update prayer name and time
     document.getElementById("prayer-time").innerText = state.timings[next];
     document.getElementById("prayer-name").innerText = TRANSLATIONS[state.lang][next];
     document.getElementById("widget").className = `arc-widget bg-${next.toLowerCase()}`;
 
-    // Update current icon highlight
     document.querySelectorAll('.prayer-icon').forEach(el => el.classList.remove('current'));
     const activeIcon = document.getElementById("icon-" + next.toLowerCase());
     if (activeIcon) activeIcon.classList.add('current');
 
-    // Compute arc progress
     let totalPerc;
     if (isPastIsha) totalPerc = 1;
     else if (minsNow < toMin(state.timings["Fajr"])) totalPerc = 0;
@@ -404,13 +402,10 @@ function updateWidget() {
     PATH.style.strokeDasharray = PATH_LEN;
     PATH.style.strokeDashoffset = PATH_LEN * (1 - totalPerc);
 
-    // ========== COUNTDOWN CALCULATION ==========
     let nextTotalMinutes = toMin(state.timings[next]);
     let nextTotalSeconds = nextTotalMinutes * 60;
     let currentTotalSeconds = (now.h*3600) + (now.m*60) + now.s;
-    if (isPastIsha) {
-        nextTotalSeconds += 24*3600;
-    }
+    if (isPastIsha) nextTotalSeconds += 24*3600;
     let diffSeconds = nextTotalSeconds - currentTotalSeconds;
     if (diffSeconds < 0) diffSeconds = 0;
     const hours = Math.floor(diffSeconds / 3600);
@@ -422,12 +417,8 @@ function updateWidget() {
 }
 
 // ==================== UI CONTROL FUNCTIONS ====================
-function toggleControls() {
-    document.getElementById('controlsPanel').classList.toggle('show');
-}
-function closeControls() {
-    document.getElementById('controlsPanel').classList.remove('show');
-}
+function toggleControls() { document.getElementById('controlsPanel').classList.toggle('show'); }
+function closeControls() { document.getElementById('controlsPanel').classList.remove('show'); }
 function changeCountry() {
     const selected = document.getElementById('countrySelect').value;
     const engCountry = getKeyByValue(DICT_COUNTRIES, selected) || selected;
@@ -453,9 +444,7 @@ function toggleLang() {
     updateLocationText();
     updateWidget();
 }
-function fullRefresh() {
-    window.location.reload();
-}
+function fullRefresh() { window.location.reload(); }
 
 // ==================== EVENT LISTENERS ====================
 document.getElementById('langBtn').addEventListener('click', toggleLang);
