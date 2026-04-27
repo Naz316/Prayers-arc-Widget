@@ -2,33 +2,32 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prayer Arc · Notion Ready</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Prayer Arc · Full Stretch for Notion</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-        background: transparent;
+
+    html, body {
+        background: transparent !important;
+        width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: auto;
         font-family: 'Roboto', sans-serif;
-        padding: 8px;
     }
     [lang="ar"] { font-family: 'Cairo', sans-serif; }
 
-    /* Widget container: flexible width, max width for Notion embed */
+    /* FULL STRETCH – no max-width, fills the embed */
     .arc-widget {
-        width: 100%;
-        max-width: 700px;        /* comfortable size for Notion */
-        margin: 0 auto;
-        aspect-ratio: 380 / 260;  /* keeps shape */
+        width: 100% !important;
+        max-width: none !important;
+        aspect-ratio: 380 / 240;
         border-radius: 26px;
         overflow: hidden;
         position: relative;
         background: linear-gradient(180deg, #6f8cff, #3f4edb);
-        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.25);
         transition: background 1s ease;
     }
 
@@ -59,16 +58,15 @@
         width: 90%;
         pointer-events: none;
     }
-    .prayer-name { font-size: clamp(1rem, 4vw, 1.3rem); font-weight: 500; }
-    .prayer-time { font-size: clamp(1.6rem, 6vw, 2.2rem); font-weight: bold; line-height: 1.1; }
+    .prayer-name { font-size: clamp(1rem, 4vw, 1.35rem); font-weight: 500; }
+    .prayer-time { font-size: clamp(1.6rem, 6vw, 2.3rem); font-weight: bold; line-height: 1.1; }
     .city-name {
         font-size: clamp(0.7rem, 2.5vw, 0.9rem);
-        opacity: 0.8;
-        margin-top: 4px;
+        opacity: 0.85;
+        margin-top: 5px;
         pointer-events: auto;
         cursor: pointer;
         text-decoration: underline;
-        display: inline-block;
     }
 
     .prayer-icon {
@@ -85,7 +83,7 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         border: 1px solid rgba(255,255,255,0.5);
     }
-    .prayer-icon img { width: 60%; object-fit: contain; }
+    .prayer-icon img { width: 60%; }
     .prayer-icon.current {
         background: gold;
         width: 13%;
@@ -103,16 +101,13 @@
         background: rgba(0,0,0,0.5);
         backdrop-filter: blur(8px);
         border: 1px solid rgba(255,255,255,0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: flex; align-items: center; justify-content: center;
         cursor: pointer;
         transition: 0.2s;
     }
     .top-left { left: 4%; }
     .top-right { right: 4%; }
     .top-left img, .top-right img { width: 50%; filter: invert(1); }
-    .top-left:hover, .top-right:hover { background: rgba(0,0,0,0.7); transform: scale(1.02); }
 </style>
 </head>
 <body>
@@ -121,7 +116,7 @@
     <div class="top-left" onclick="toggleLang()" id="langBtn">
         <img src="https://cdn-icons-png.flaticon.com/128/18882/18882472.png">
     </div>
-    <div class="top-right" onclick="window.location.reload()">
+    <div class="top-right" onclick="fetchDataAndRefresh()">
         <img src="https://cdn-icons-png.flaticon.com/128/9311/9311549.png">
     </div>
 
@@ -155,13 +150,11 @@ const TRANSLATIONS = {
 const PATH = document.getElementById("arcProgress");
 let state = { timings: null, lang: 'en' };
 
-// Position icons exactly on the arc (scaled with container)
 function snapIconsToPath() {
     const pathLen = PATH.getTotalLength();
     const svgRect = document.getElementById('svgBox').getBoundingClientRect();
     const scaleX = svgRect.width / 380;
     const scaleY = svgRect.height / 240;
-
     PRAYERS.forEach(p => {
         const perc = NODES[p];
         const pt = PATH.getPointAtLength(perc * pathLen);
@@ -180,8 +173,6 @@ async function fetchData() {
         if (data.code === 200) {
             state.timings = data.data.timings;
             updateWidget();
-        } else {
-            console.warn("API error");
         }
     } catch (e) { console.error("Fetch failed", e); }
 }
@@ -193,7 +184,7 @@ function updateWidget() {
 
     let next = "Fajr", prev = "Isha";
     let isPastIsha = true;
-    for(let i=0; i<PRAYERS.length; i++) {
+    for (let i = 0; i < PRAYERS.length; i++) {
         const pm = toMin(state.timings[PRAYERS[i]]);
         if (pm > minsNow) {
             next = PRAYERS[i];
@@ -206,7 +197,7 @@ function updateWidget() {
     document.getElementById("prayer-time").innerText = state.timings[next];
     document.getElementById("prayer-name").innerText = TRANSLATIONS[state.lang][next];
     document.getElementById("widget").className = `arc-widget bg-${next.toLowerCase()}`;
-    
+
     document.querySelectorAll('.prayer-icon').forEach(el => el.classList.remove('current'));
     const activeIcon = document.getElementById("icon-" + next.toLowerCase());
     if (activeIcon) activeIcon.classList.add('current');
@@ -215,9 +206,7 @@ function updateWidget() {
     if (isPastIsha) totalPerc = 1;
     else if (minsNow < toMin(state.timings["Fajr"])) totalPerc = 0;
     else {
-        const tStart = toMin(state.timings[prev]);
-        const tEnd = toMin(state.timings[next]);
-        const progress = Math.max(0, Math.min(1, (minsNow - tStart) / (tEnd - tStart)));
+        const progress = Math.max(0, Math.min(1, (minsNow - toMin(state.timings[prev])) / (toMin(state.timings[next]) - toMin(state.timings[prev]))));
         totalPerc = NODES[prev] + (progress * (NODES[next] - NODES[prev]));
     }
 
@@ -234,13 +223,19 @@ function toggleLang() {
     updateWidget();
 }
 
-// Initial run
+async function fetchDataAndRefresh() {
+    const btn = document.querySelector('.top-right');
+    btn.style.transform = 'rotate(180deg)';
+    await fetchData();
+    setTimeout(() => { btn.style.transform = ''; }, 400);
+}
+
 fetchData();
 setInterval(updateWidget, 1000);
 
-// Re‑snap icons when widget resizes (critical for Notion embed)
-const resizeObserver = new ResizeObserver(() => { snapIconsToPath(); });
+const resizeObserver = new ResizeObserver(() => snapIconsToPath());
 resizeObserver.observe(document.getElementById('widget'));
+window.addEventListener('load', () => setTimeout(snapIconsToPath, 50));
 </script>
 </body>
 </html>
