@@ -183,6 +183,7 @@
         cursor: pointer;
     }
 </style>
+<base target="_blank">
 </head>
 <body>
 <div class="arc-widget" id="widget">
@@ -459,15 +460,40 @@ function updateWidget() {
     PATH.style.strokeDasharray = PATH_LEN;
     PATH.style.strokeDashoffset = PATH_LEN * (1 - totalPerc);
 
-    // Left line (before Fajr)
+    // Left line (before Fajr) - FIX: always show it, progress from 0 to 30 based on time after midnight before Fajr
     const fajrMins = toMin(state.timings.Fajr);
-    const isAfterFajr = (minsNow >= fajrMins) && (next !== "Fajr");
-    LEFT_PROG.style.strokeDashoffset = isAfterFajr ? 0 : LEFT_LEN;
+    const midnight = 0; // 00:00 in minutes
+    const minutesInDay = 24 * 60;
 
-    // Right line (after Isha)
+    // The left edge represents the time from midnight (00:00) to Fajr
+    // When we are before Fajr, show partial progress on left edge
+    // When we are after Fajr, left edge is fully lit
+    if (minsNow < fajrMins) {
+        // Before Fajr: progress from 0 to LEFT_LEN as we approach Fajr
+        // The period is from midnight to Fajr
+        const progressLeft = Math.max(0, Math.min(1, minsNow / fajrMins));
+        LEFT_PROG.style.strokeDashoffset = LEFT_LEN * (1 - progressLeft);
+    } else {
+        // After Fajr: left edge fully lit
+        LEFT_PROG.style.strokeDashoffset = 0;
+    }
+
+    // Right line (after Isha) - FIX: always show it, progress from 0 to 30 based on time after Isha
     const ishaMins = toMin(state.timings.Isha);
-    const isAfterIsha = (minsNow >= ishaMins) && (next === "Fajr");
-    RIGHT_PROG.style.strokeDashoffset = isAfterIsha ? 0 : RIGHT_LEN;
+
+    // The right edge represents the time from Isha to midnight (24:00)
+    // When we are after Isha, show partial progress on right edge
+    // When we are before Isha, right edge is not lit
+    if (minsNow >= ishaMins) {
+        // After Isha: progress from 0 to RIGHT_LEN as we approach midnight
+        const periodAfterIsha = minutesInDay - ishaMins;
+        const elapsedAfterIsha = minsNow - ishaMins;
+        const progressRight = Math.max(0, Math.min(1, elapsedAfterIsha / periodAfterIsha));
+        RIGHT_PROG.style.strokeDashoffset = RIGHT_LEN * (1 - progressRight);
+    } else {
+        // Before Isha: right edge not lit
+        RIGHT_PROG.style.strokeDashoffset = RIGHT_LEN;
+    }
 
     // Countdown to next mandatory prayer
     let nextTotalMinutes = toMin(state.timings[next]);
