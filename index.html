@@ -117,9 +117,8 @@
         box-shadow: 0 0 15px gold;
         border: 2px solid white;
     }
-    /* For the current prayer, keep image size consistent */
     .prayer-icon.current img { width: 55%; }
-    #icon-isha.current img { width: 55%; }  /* revert to normal when active */
+    #icon-isha.current img { width: 55%; }
 
     .top-left, .top-right {
         position: absolute;
@@ -218,7 +217,7 @@
     <div class="center-info">
         <div class="prayer-name" id="prayer-name">--</div>
         <div class="prayer-time" id="prayer-time">--:--</div>
-        <div class="city-name" id="city-display">Ain Oussera</div>
+        <div class="city-name" id="city-display">Algiers</div>
         <div class="countdown" id="countdownDisplay">--:--:--</div>
     </div>
 
@@ -260,7 +259,7 @@ const TRANSLATIONS = {
     en: {
         Fajr: "Fajr", Sunrise: "Sunrise", Duha: "Duha", Dhuhr: "Dhuhr",
         Asr: "Asr", Maghrib: "Maghrib", Isha: "Isha",
-        city: "Ain Oussera",
+        city: "Algiers",
         cityLabel: "City",
         countryLabel: "Country",
         close: "Close",
@@ -269,7 +268,7 @@ const TRANSLATIONS = {
     ar: {
         Fajr: "الفجر", Sunrise: "الشروق", Duha: "الضحى", Dhuhr: "الظهر",
         Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء",
-        city: "عين وسارة",
+        city: "الجزائر العاصمة",
         cityLabel: "المدينة",
         countryLabel: "الدولة",
         close: "إغلاق",
@@ -277,36 +276,141 @@ const TRANSLATIONS = {
     }
 };
 
-// ==================== COUNTRY & CITY DATA ====================
+// ==================== EXPANDED COUNTRY & CITY DATA (ONLY CAPITALS, PLUS MAJOR US CITIES) ====================
 const COUNTRY_DATA = {
-    "Algeria": ["Ain Oussera", "Algiers"],
-    "Saudi Arabia": ["Makkah", "Madinah"],
-    "Palestine": ["Gaza", "Jerusalem"],
+    // Africa
+    "Algeria": ["Algiers"],
     "Egypt": ["Cairo"],
     "Morocco": ["Rabat"],
     "Tunisia": ["Tunis"],
-    "France": ["Paris"],
-    "US": ["Washington"],
-    "UK": ["London"],
+    "Libya": ["Tripoli"],
+    "Sudan": ["Khartoum"],
+    "Nigeria": ["Abuja"],
+    "South Africa": ["Pretoria"],
+    "Kenya": ["Nairobi"],
+    "Ghana": ["Accra"],
+    "Senegal": ["Dakar"],
+    // Asia
+    "Saudi Arabia": ["Riyadh"],
+    "Palestine": ["Ramallah"],
+    "Jordan": ["Amman"],
+    "Lebanon": ["Beirut"],
+    "Iraq": ["Baghdad"],
+    "Syria": ["Damascus"],
+    "Yemen": ["Sanaa"],
+    "Oman": ["Muscat"],
+    "Kuwait": ["Kuwait City"],
+    "Bahrain": ["Manama"],
+    "Qatar": ["Doha"],
+    "UAE": ["Abu Dhabi"],
     "Turkey": ["Ankara"],
+    "Iran": ["Tehran"],
+    "Pakistan": ["Islamabad"],
+    "India": ["New Delhi"],
+    "Bangladesh": ["Dhaka"],
+    "China": ["Beijing"],
+    "Japan": ["Tokyo"],
+    "South Korea": ["Seoul"],
     "Indonesia": ["Jakarta"],
-    "Malaysia": ["Kuala Lumpur"]
+    "Malaysia": ["Kuala Lumpur"],
+    "Thailand": ["Bangkok"],
+    "Vietnam": ["Hanoi"],
+    "Philippines": ["Manila"],
+    "Sri Lanka": ["Colombo"],
+    "Nepal": ["Kathmandu"],
+    "Afghanistan": ["Kabul"],
+    "Uzbekistan": ["Tashkent"],
+    "Kazakhstan": ["Nur-Sultan"],
+    // Europe
+    "France": ["Paris"],
+    "UK": ["London"],
+    "Germany": ["Berlin"],
+    "Italy": ["Rome"],
+    "Spain": ["Madrid"],
+    "Russia": ["Moscow"],
+    "Netherlands": ["Amsterdam"],
+    "Belgium": ["Brussels"],
+    "Switzerland": ["Bern"],
+    "Sweden": ["Stockholm"],
+    "Norway": ["Oslo"],
+    "Denmark": ["Copenhagen"],
+    "Poland": ["Warsaw"],
+    "Greece": ["Athens"],
+    "Portugal": ["Lisbon"],
+    "Austria": ["Vienna"],
+    "Ireland": ["Dublin"],
+    "Finland": ["Helsinki"],
+    // North America
+    "US": ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose", "Austin", "Jacksonville", "Fort Worth", "Columbus", "Charlotte", "Indianapolis", "San Francisco", "Seattle", "Denver", "Washington DC"],
+    "Canada": ["Ottawa", "Toronto", "Vancouver", "Montreal"],
+    "Mexico": ["Mexico City"],
+    // South America
+    "Brazil": ["Brasília"],
+    "Argentina": ["Buenos Aires"],
+    "Chile": ["Santiago"],
+    "Peru": ["Lima"],
+    "Colombia": ["Bogotá"],
+    "Venezuela": ["Caracas"],
+    "Ecuador": ["Quito"],
+    // Oceania
+    "Australia": ["Canberra", "Sydney", "Melbourne", "Brisbane", "Perth"],
+    "New Zealand": ["Wellington"]
 };
+
 const DICT_COUNTRIES = {
-    "Algeria": "الجزائر", "Palestine": "فلسطين", "Saudi Arabia": "السعودية", "Egypt": "مصر",
-    "Morocco": "المغرب", "Tunisia": "تونس", "France": "فرنسا", "US": "أمريكا",
-    "UK": "بريطانيا", "Turkey": "تركيا", "Indonesia": "إندونيسيا", "Malaysia": "ماليزيا"
+    "Algeria": "الجزائر", "Egypt": "مصر", "Morocco": "المغرب", "Tunisia": "تونس",
+    "Libya": "ليبيا", "Sudan": "السودان", "Nigeria": "نيجيريا", "South Africa": "جنوب أفريقيا",
+    "Kenya": "كينيا", "Ghana": "غانا", "Senegal": "السنغال",
+    "Saudi Arabia": "السعودية", "Palestine": "فلسطين", "Jordan": "الأردن", "Lebanon": "لبنان",
+    "Iraq": "العراق", "Syria": "سوريا", "Yemen": "اليمن", "Oman": "عمان", "Kuwait": "الكويت",
+    "Bahrain": "البحرين", "Qatar": "قطر", "UAE": "الإمارات", "Turkey": "تركيا", "Iran": "إيران",
+    "Pakistan": "باكستان", "India": "الهند", "Bangladesh": "بنغلاديش", "China": "الصين",
+    "Japan": "اليابان", "South Korea": "كوريا الجنوبية", "Indonesia": "إندونيسيا", "Malaysia": "ماليزيا",
+    "Thailand": "تايلاند", "Vietnam": "فيتنام", "Philippines": "الفلبين", "Sri Lanka": "سريلانكا",
+    "Nepal": "نيبال", "Afghanistan": "أفغانستان", "Uzbekistan": "أوزبكستان", "Kazakhstan": "كازاخستان",
+    "France": "فرنسا", "UK": "بريطانيا", "Germany": "ألمانيا", "Italy": "إيطاليا", "Spain": "إسبانيا",
+    "Russia": "روسيا", "Netherlands": "هولندا", "Belgium": "بلجيكا", "Switzerland": "سويسرا",
+    "Sweden": "السويد", "Norway": "النرويج", "Denmark": "الدنمارك", "Poland": "بولندا",
+    "Greece": "اليونان", "Portugal": "البرتغال", "Austria": "النمسا", "Ireland": "أيرلندا",
+    "Finland": "فنلندا", "US": "أمريكا", "Canada": "كندا", "Mexico": "المكسيك",
+    "Brazil": "البرازيل", "Argentina": "الأرجنتين", "Chile": "تشيلي", "Peru": "بيرو",
+    "Colombia": "كولومبيا", "Venezuela": "فنزويلا", "Ecuador": "الإكوادور",
+    "Australia": "أستراليا", "New Zealand": "نيوزيلندا"
 };
+
 const DICT_CITIES = {
-    "Ain Oussera": "عين وسارة", "Algiers": "الجزائر العاصمة", "Makkah": "مكة المكرمة", "Madinah": "المدينة المنورة",
-    "Gaza": "غزة", "Jerusalem": "القدس", "Cairo": "القاهرة", "Rabat": "الرباط", "Tunis": "تونس العاصمة",
-    "Paris": "باريس", "Washington": "واشنطن", "London": "لندن", "Ankara": "أنقرة", "Jakarta": "جاكرتا", "Kuala Lumpur": "كوالالمبور"
+    "Algiers": "الجزائر العاصمة", "Cairo": "القاهرة", "Rabat": "الرباط", "Tunis": "تونس العاصمة",
+    "Tripoli": "طرابلس", "Khartoum": "الخرطوم", "Abuja": "أبوجا", "Pretoria": "بريتوريا",
+    "Nairobi": "نيروبي", "Accra": "أكرا", "Dakar": "داكار",
+    "Riyadh": "الرياض", "Ramallah": "رام الله", "Amman": "عمان", "Beirut": "بيروت",
+    "Baghdad": "بغداد", "Damascus": "دمشق", "Sanaa": "صنعاء", "Muscat": "مسقط",
+    "Kuwait City": "مدينة الكويت", "Manama": "المنامة", "Doha": "الدوحة", "Abu Dhabi": "أبو ظبي",
+    "Ankara": "أنقرة", "Tehran": "طهران", "Islamabad": "إسلام آباد", "New Delhi": "نيودلهي",
+    "Dhaka": "دكا", "Beijing": "بكين", "Tokyo": "طوكيو", "Seoul": "سيول", "Jakarta": "جاكرتا",
+    "Kuala Lumpur": "كوالالمبور", "Bangkok": "بانكوك", "Hanoi": "هانوي", "Manila": "مانيلا",
+    "Colombo": "كولومبو", "Kathmandu": "كاتماندو", "Kabul": "كابول", "Tashkent": "طشقند",
+    "Nur-Sultan": "نور سلطان", "Paris": "باريس", "London": "لندن", "Berlin": "برلين",
+    "Rome": "روما", "Madrid": "مدريد", "Moscow": "موسكو", "Amsterdam": "أمستردام",
+    "Brussels": "بروكسل", "Bern": "برن", "Stockholm": "ستوكهولم", "Oslo": "أوسلو",
+    "Copenhagen": "كوبنهاغن", "Warsaw": "وارسو", "Athens": "أثينا", "Lisbon": "لشبونة",
+    "Vienna": "فيينا", "Dublin": "دبلن", "Helsinki": "هلسنكي",
+    "New York": "نيويورك", "Los Angeles": "لوس أنجلوس", "Chicago": "شيكاغو", "Houston": "هيوستن",
+    "Phoenix": "فينيكس", "Philadelphia": "فيلادلفيا", "San Antonio": "سان أنطونيو",
+    "San Diego": "سان دييغو", "Dallas": "دالاس", "San Jose": "سان خوسيه", "Austin": "أوستن",
+    "Jacksonville": "جاكسونفيل", "Fort Worth": "فورت وورث", "Columbus": "كولومبوس",
+    "Charlotte": "شارلوت", "Indianapolis": "إنديانابوليس", "San Francisco": "سان فرانسيسكو",
+    "Seattle": "سياتل", "Denver": "دنفر", "Washington DC": "واشنطن العاصمة",
+    "Ottawa": "أوتاوا", "Toronto": "تورونتو", "Vancouver": "فانكوفر", "Montreal": "مونتريال",
+    "Mexico City": "مدينة مكسيكو", "Brasília": "برازيليا", "Buenos Aires": "بوينس آيرس",
+    "Santiago": "سانتياغو", "Lima": "ليما", "Bogotá": "بوغوتا", "Caracas": "كاراكاس",
+    "Quito": "كيتو", "Canberra": "كانبرا", "Sydney": "سيدني", "Melbourne": "ملبورن",
+    "Brisbane": "بريزبن", "Perth": "بيرث", "Wellington": "ويلينغتون"
 };
 
 // ==================== STATE ====================
 let state = {
     lang: localStorage.getItem(widgetId + '_lang') || 'en',
-    city: localStorage.getItem(widgetId + '_city') || "Ain Oussera",
+    city: localStorage.getItem(widgetId + '_city') || "Algiers",
     country: localStorage.getItem(widgetId + '_country') || "Algeria",
     timings: null,
     timezone: null
@@ -442,12 +546,12 @@ function updateWidget() {
     document.getElementById("prayer-name").innerText = TRANSLATIONS[state.lang][next];
     document.getElementById("widget").className = `arc-widget bg-${next.toLowerCase()}`;
 
-    // Highlight only the mandatory next prayer (Sunrise/Duha never become current)
+    // Highlight only the mandatory next prayer
     document.querySelectorAll('.prayer-icon').forEach(el => el.classList.remove('current'));
     const activeIcon = document.getElementById("icon-" + next.toLowerCase());
     if (activeIcon) activeIcon.classList.add('current');
 
-    // Central arc progress (based on mandatory prayers only)
+    // Central arc progress
     let totalPerc;
     if (isPastIsha) totalPerc = 1;
     else if (minsNow < toMin(state.timings["Fajr"])) totalPerc = 0;
@@ -460,42 +564,30 @@ function updateWidget() {
     PATH.style.strokeDasharray = PATH_LEN;
     PATH.style.strokeDashoffset = PATH_LEN * (1 - totalPerc);
 
-    // Left line (before Fajr) - FIX: always show it, progress from 0 to 30 based on time after midnight before Fajr
+    // Left line (before Fajr)
     const fajrMins = toMin(state.timings.Fajr);
-    const midnight = 0; // 00:00 in minutes
+    const midnight = 0;
     const minutesInDay = 24 * 60;
 
-    // The left edge represents the time from midnight (00:00) to Fajr
-    // When we are before Fajr, show partial progress on left edge
-    // When we are after Fajr, left edge is fully lit
     if (minsNow < fajrMins) {
-        // Before Fajr: progress from 0 to LEFT_LEN as we approach Fajr
-        // The period is from midnight to Fajr
         const progressLeft = Math.max(0, Math.min(1, minsNow / fajrMins));
         LEFT_PROG.style.strokeDashoffset = LEFT_LEN * (1 - progressLeft);
     } else {
-        // After Fajr: left edge fully lit
         LEFT_PROG.style.strokeDashoffset = 0;
     }
 
-    // Right line (after Isha) - FIX: always show it, progress from 0 to 30 based on time after Isha
+    // Right line (after Isha)
     const ishaMins = toMin(state.timings.Isha);
-
-    // The right edge represents the time from Isha to midnight (24:00)
-    // When we are after Isha, show partial progress on right edge
-    // When we are before Isha, right edge is not lit
     if (minsNow >= ishaMins) {
-        // After Isha: progress from 0 to RIGHT_LEN as we approach midnight
         const periodAfterIsha = minutesInDay - ishaMins;
         const elapsedAfterIsha = minsNow - ishaMins;
         const progressRight = Math.max(0, Math.min(1, elapsedAfterIsha / periodAfterIsha));
         RIGHT_PROG.style.strokeDashoffset = RIGHT_LEN * (1 - progressRight);
     } else {
-        // Before Isha: right edge not lit
         RIGHT_PROG.style.strokeDashoffset = RIGHT_LEN;
     }
 
-    // Countdown to next mandatory prayer
+    // Countdown
     let nextTotalMinutes = toMin(state.timings[next]);
     let nextTotalSeconds = nextTotalMinutes * 60;
     let currentTotalSeconds = (now.h*3600) + (now.m*60) + now.s;
